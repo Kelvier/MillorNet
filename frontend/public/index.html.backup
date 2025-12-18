@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MillorNet</title>
+  <script>
+    window.location.href = "/login";
+  </script>
+</head>
+<body>
+  Redirigiendo a login...
+</body>
+</html>

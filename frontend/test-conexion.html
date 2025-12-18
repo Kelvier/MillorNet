@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Conexión MillorNet</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input, button { margin: 5px; padding: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Test de conexión MillorNet</h1>
+    
+    <h3>1. Probar conexión al backend:</h3>
+    <button onclick="testConnection()">Probar conexión</button>
+    <div id="connectionResult"></div>
+    
+    <h3>2. Probar registro:</h3>
+    <input type="text" id="username" placeholder="Usuario" value="testuser"><br>
+    <input type="email" id="email" placeholder="Email" value="test@test.com"><br>
+    <input type="password" id="password" placeholder="Contraseña" value="test123"><br>
+    <button onclick="testRegister()">Probar registro</button>
+    <div id="registerResult"></div>
+    
+    <h3>3. URL del backend:</h3>
+    <input type="text" id="apiUrl" value="http://176.84.214.29:3000/api" style="width: 300px;">
+    <button onclick="updateUrl()">Actualizar URL</button>
+    
+    <script>
+        let API_URL = 'http://176.84.214.29:3000/api';
+        
+        function updateUrl() {
+            API_URL = document.getElementById('apiUrl').value;
+            console.log('URL actualizada:', API_URL);
+        }
+        
+        async function testConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.innerHTML = 'Probando conexión...';
+            
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="success">✅ CONEXIÓN OK: ${data.status} - ${data.timestamp}</div>`;
+                console.log('Conexión exitosa:', data);
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ ERROR: ${error.message}</div>`;
+                console.error('Error de conexión:', error);
+            }
+        }
+        
+        async function testRegister() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const resultDiv = document.getElementById('registerResult');
+            resultDiv.innerHTML = 'Enviando registro...';
+            
+            console.log('Enviando registro:', { username, email, password });
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                console.log('Respuesta status:', response.status);
+                
+                const data = await response.json();
+                console.log('Respuesta data:', data);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="success">
+                        ✅ REGISTRO EXITOSO<br>
+                        Usuario: ${data.user.username}<br>
+                        Email: ${data.user.email}<br>
+                        ID: ${data.user.id}
+                    </div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">
+                        ❌ ERROR DEL SERVIDOR: ${data.error || 'Error desconocido'}
+                    </div>`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">
+                    ❌ ERROR DE CONEXIÓN: ${error.message}
+                </div>`;
+                console.error('Error completo:', error);
+            }
+        }
+        
+        // Probar conexión al cargar
+        window.onload = testConnection;
+    </script>
+</body>
+</html>

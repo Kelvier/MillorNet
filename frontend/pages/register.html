@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro - MillorNet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              primary: '#00ffff',
+              secondary: '#ff00ff',
+              dark: '#0a0a0f',
+              card: '#11111f',
+              accent: '#00ffaa',
+              danger: '#ff0055'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite',
+            'scan': 'scan 3s linear infinite'
+          },
+          keyframes: {
+            glow: {
+              '0%, 100%': { boxShadow: '0 0 10px #00ffff' },
+              '50%': { boxShadow: '0 0 20px #00ffff, 0 0 30px #00ffff' }
+            },
+            scan: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(100vh)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .cyber-grid {
+      background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    
+    .cyber-text-gradient {
+      background: linear-gradient(90deg, #00ffff, #ff00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .cyber-border-gradient {
+      border: 2px solid transparent;
+      background: linear-gradient(#0a0a0f, #0a0a0f) padding-box,
+                  linear-gradient(45deg, #00ffff, #ff00ff) border-box;
+    }
+    
+    .password-strength-meter {
+      height: 4px;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    
+    .password-strength-0 {
+      width: 20%;
+      background: linear-gradient(90deg, #ff0055, #ff5555);
+    }
+    
+    .password-strength-1 {
+      width: 40%;
+      background: linear-gradient(90deg, #ff5555, #ffaa00);
+    }
+    
+    .password-strength-2 {
+      width: 60%;
+      background: linear-gradient(90deg, #ffaa00, #ffff00);
+    }
+    
+    .password-strength-3 {
+      width: 80%;
+      background: linear-gradient(90deg, #ffff00, #aaff00);
+    }
+    
+    .password-strength-4 {
+      width: 100%;
+      background: linear-gradient(90deg, #aaff00, #00ffaa);
+    }
+  </style>
+</head>
+<body class="bg-cyber-dark text-white cyber-grid min-h-screen flex items-center justify-center p-4">
+  <!-- Scan line effect -->
+  <div class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyber-primary to-transparent animate-scan z-50"></div>
+  
+  <!-- Back to home -->
+  <a href="/" class="fixed top-6 left-6 text-gray-400 hover:text-cyber-primary transition z-10">
+    <i class="fas fa-arrow-left mr-2"></i> Volver al inicio
+  </a>
+
+  <div class="relative w-full max-w-md">
+    <!-- Efecto de borde cibernético -->
+    <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500 rounded-2xl blur opacity-30 animate-glow"></div>
+    
+    <div class="relative cyber-border-gradient rounded-2xl p-8">
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 mb-4">
+          <i class="fas fa-user-plus text-2xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold cyber-text-gradient">CREAR CUENTA</h1>
+        <p class="text-gray-400 mt-2">Únete a la comunidad segura</p>
+      </div>
+      
+      <!-- Formulario de registro -->
+      <form id="registerForm" class="space-y-6">
+        <!-- Campo Usuario -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            <i class="fas fa-user mr-2"></i>Nombre de usuario
+          </label>
+          <div class="relative">
+            <input 
+              type="text" 
+              id="username" 
+              placeholder="cyberexplorer"
+              class="w-full px-4 py-3 pl-12 bg-gray-800 border border-gray-700 rounded-lg focus:border-cyber-primary focus:ring-2 focus:ring-cyber-primary/30 focus:outline-none transition"
+              required
+              minlength="3"
+              maxlength="20"
+              pattern="[A-Za-z0-9_]+"
+              title="Solo letras, números y guiones bajos"
+            >
+            <div class="absolute left-4 top-3.5 text-gray-500">
+              <i class="fas fa-at"></i>
+            </div>
+            <div class="absolute right-4 top-3.5">
+              <div id="usernameValid" class="hidden text-green-500">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">3-20 caracteres, solo letras, números y _</p>
+        </div>
+        
+        <!-- Campo Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            <i class="fas fa-envelope mr-2"></i>Correo electrónico
+          </label>
+          <div class="relative">
+            <input 
+              type="email" 
+              id="email" 
+              placeholder="usuario@millornet.com"
+              class="w-full px-4 py-3 pl-12 bg-gray-800 border border-gray-700 rounded-lg focus:border-cyber-primary focus:ring-2 focus:ring-cyber-primary/30 focus:outline-none transition"
+              required
+            >
+            <div class="absolute left-4 top-3.5 text-gray-500">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="absolute right-4 top-3.5">
+              <div id="emailValid" class="hidden text-green-500">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Campo Contraseña -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            <i class="fas fa-lock mr-2"></i>Contraseña
+          </label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="password" 
+              placeholder="••••••••"
+              class="w-full px-4 py-3 pl-12 bg-gray-800 border border-gray-700 rounded-lg focus:border-cyber-primary focus:ring-2 focus:ring-cyber-primary/30 focus:outline-none transition"
+              required
+              minlength="8"
+            >
+            <div class="absolute left-4 top-3.5 text-gray-500">
+              <i class="fas fa-key"></i>
+            </div>
+            <button type="button" id="togglePassword" class="absolute right-4 top-3.5 text-gray-500 hover:text-cyber-primary">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          
+          <!-- Strength meter -->
+          <div class="mt-3">
+            <div class="flex justify-between text-xs text-gray-500 mb-1">
+              <span>Seguridad de la contraseña</span>
+              <span id="passwordStrengthText">Débil</span>
+            </div>
+            <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+              <div id="passwordStrengthMeter" class="password-strength-meter password-strength-0 h-2 rounded-full transition-all duration-300"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              Mínimo 8 caracteres, incluye mayúsculas, minúsculas, números y símbolos
+            </div>
+          </div>
+        </div>
+        
+        <!-- Campo Confirmar Contraseña -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            <i class="fas fa-lock mr-2"></i>Confirmar contraseña
+          </label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              placeholder="••••••••"
+              class="w-full px-4 py-3 pl-12 bg-gray-800 border border-gray-700 rounded-lg focus:border-cyber-primary focus:ring-2 focus:ring-cyber-primary/30 focus:outline-none transition"
+              required
+            >
+            <div class="absolute left-4 top-3.5 text-gray-500">
+              <i class="fas fa-lock"></i>
+            </div>
+            <div class="absolute right-4 top-3.5">
+              <div id="passwordMatch" class="hidden">
+                <i class="fas fa-check-circle text-green-500"></i>
+              </div>
+              <div id="passwordMismatch" class="hidden">
+                <i class="fas fa-times-circle text-red-500"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Términos y condiciones -->
+        <div class="flex items-start">
+          <input 
+            type="checkbox" 
+            id="terms" 
+            class="w-4 h-4 mt-1 text-cyber-primary bg-gray-800 border-gray-700 rounded focus:ring-cyber-primary"
+            required
+          >
+          <label for="terms" class="ml-2 text-sm text-gray-300">
+            Acepto los <a href="#" class="text-cyber-primary hover:underline">Términos de Servicio</a> y 
+            <a href="#" class="text-cyber-primary hover:underline">Política de Privacidad</a> de MillorNet
+          </label>
+        </div>
+        
+        <!-- Mensaje de error/éxito -->
+        <div id="message" class="hidden p-4 rounded-lg text-center"></div>
+        
+        <!-- Botón de registro -->
+        <button 
+          type="submit" 
+          id="registerBtn"
+          class="w-full py-3 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 rounded-lg font-bold text-lg transition duration-300 flex items-center justify-center"
+          disabled
+        >
+          <i class="fas fa-user-plus mr-2"></i>
+          <span id="btnText">CREAR CUENTA</span>
+          <div id="btnLoading" class="hidden ml-2">
+            <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+          </div>
+        </button>
+        
+        <!-- Enlace a login -->
+        <div class="text-center pt-4 border-t border-gray-800">
+          <p class="text-gray-400">
+            ¿Ya tienes una cuenta? 
+            <a href="/login" class="text-cyber-primary hover:text-cyber-300 font-medium transition">Iniciar sesión</a>
+          </p>
+        </div>
+      </form>
+      
+      <!-- Información de seguridad -->
+      <div class="mt-8 p-4 bg-gray-900 rounded-lg">
+        <div class="flex items-center text-sm text-gray-400">
+          <i class="fas fa-shield-alt text-cyber-primary mr-3 text-lg"></i>
+          <div>
+            <p class="font-medium">Tu seguridad es nuestra prioridad</p>
+            <p class="text-xs mt-1">Todos los datos están cifrados con tecnología de grado militar</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuración de la API
+    const API = 'http://176.84.214.29:3000/api/auth';
+    
+    // Elementos del DOM
+    const registerForm = document.getElementById('registerForm');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const togglePasswordBtn = document.getElementById('togglePassword');
+    const registerBtn = document.getElementById('registerBtn');
+    const btnText = document.getElementById('btnText');
+    const btnLoading = document.getElementById('btnLoading');
+    const messageDiv = document.getElementById('message');
+    
+    // Variables de estado
+    let passwordVisible = false;
+    let isFormValid = false;
+    
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+      setupEventListeners();
+      validateForm();
+    });
+    
+    // Configurar event listeners
+    function setupEventListeners() {
+      // Validación en tiempo real
+      usernameInput.addEventListener('input', validateUsername);
+      emailInput.addEventListener('input', validateEmail);
+      passwordInput.addEventListener('input', validatePassword);
+      confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+      
+      // Mostrar/ocultar contraseña
+      togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
+      
+      // Enviar formulario
+      registerForm.addEventListener('submit', handleRegister);
+      
+      // Validación general del formulario
+      registerForm.addEventListener('input', validateForm);
+    }
+    
+    // Validar nombre de usuario
+    function validateUsername() {
+      const username = usernameInput.value.trim();
+      const usernameValid = document.getElementById('usernameValid');
+      const isValid = /^[A-Za-z0-9_]{3,20}$/.test(username);
+      
+      if (username.length === 0) {
+        usernameValid.classList.add('hidden');
+        usernameInput.classList.remove('border-green-500', 'border-red-500');
+        return false;
+      }
+      
+      if (isValid) {
+        usernameValid.classList.remove('hidden');
+        usernameInput.classList.remove('border-red-500');
+        usernameInput.classList.add('border-green-500');
+        return true;
+      } else {
+        usernameValid.classList.add('hidden');
+        usernameInput.classList.remove('border-green-500');
+        usernameInput.classList.add('border-red-500');
+        return false;
+      }
+    }
+    
+    // Validar email
+    function validateEmail() {
+      const email = emailInput.value.trim();
+      const emailValid = document.getElementById('emailValid');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValid = emailRegex.test(email);
+      
+      if (email.length === 0) {
+        emailValid.classList.add('hidden');
+        emailInput.classList.remove('border-green-500', 'border-red-500');
+        return false;
+      }
+      
+      if (isValid) {
+        emailValid.classList.remove('hidden');
+        emailInput.classList.remove('border-red-500');
+        emailInput.classList.add('border-green-500');
+        return true;
+      } else {
+        emailValid.classList.add('hidden');
+        emailInput.classList.remove('border-green-500');
+        emailInput.classList.add('border-red-500');
+        return false;
+      }
+    }
+    
+    // Validar fortaleza de contraseña
+    function validatePassword() {
+      const password = passwordInput.value;
+      const strengthMeter = document.getElementById('passwordStrengthMeter');
+      const strengthText = document.getElementById('passwordStrengthText');
+      
+      if (password.length === 0) {
+        strengthMeter.className = 'password-strength-meter password-strength-0';
+        strengthText.textContent = '';
+        strengthText.className = 'text-gray-500';
+        return false;
+      }
+      
+      // Calcular puntuación de fortaleza
+      let score = 0;
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[a-z]/.test(password)) score++;
+      if (/[0-9]/.test(password)) score++;
+      if (/[^A-Za-z0-9]/.test(password)) score++;
+      
+      // Actualizar medidor y texto
+      strengthMeter.className = `password-strength-meter password-strength-${score}`;
+      
+      const strengthLabels = ['Muy débil', 'Débil', 'Regular', 'Fuerte', 'Muy fuerte'];
+      const strengthColors = ['text-red-500', 'text-orange-500', 'text-yellow-500', 'text-green-500', 'text-green-400'];
+      
+      strengthText.textContent = strengthLabels[score];
+      strengthText.className = strengthColors[score];
+      
+      // Validar coincidencia con confirmación
+      validatePasswordMatch();
+      
+      return password.length >= 8;
+    }
+    
+    // Validar que las contraseñas coincidan
+    function validatePasswordMatch() {
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const passwordMatch = document.getElementById('passwordMatch');
+      const passwordMismatch = document.getElementById('passwordMismatch');
+      
+      if (confirmPassword.length === 0) {
+        passwordMatch.classList.add('hidden');
+        passwordMismatch.classList.add('hidden');
+        confirmPasswordInput.classList.remove('border-green-500', 'border-red-500');
+        return false;
+      }
+      
+      if (password === confirmPassword && password.length >= 8) {
+        passwordMatch.classList.remove('hidden');
+        passwordMismatch.classList.add('hidden');
+        confirmPasswordInput.classList.remove('border-red-500');
+        confirmPasswordInput.classList.add('border-green-500');
+        return true;
+      } else {
+        passwordMatch.classList.add('hidden');
+        passwordMismatch.classList.remove('hidden');
+        confirmPasswordInput.classList.remove('border-green-500');
+        confirmPasswordInput.classList.add('border-red-500');
+        return false;
+      }
+    }
+    
+    // Mostrar/ocultar contraseña
+    function togglePasswordVisibility() {
+      passwordVisible = !passwordVisible;
+      
+      if (passwordVisible) {
+        passwordInput.type = 'text';
+        confirmPasswordInput.type = 'text';
+        togglePasswordBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+      } else {
+        passwordInput.type = 'password';
+        confirmPasswordInput.type = 'password';
+        togglePasswordBtn.innerHTML = '<i class="fas fa-eye"></i>';
+      }
+    }
+    
+    // Validar formulario completo
+    function validateForm() {
+      const usernameValid = validateUsername();
+      const emailValid = validateEmail();
+      const passwordValid = passwordInput.value.length >= 8;
+      const passwordsMatch = validatePasswordMatch();
+      const termsChecked = document.getElementById('terms').checked;
+      
+      isFormValid = usernameValid && emailValid && passwordValid && passwordsMatch && termsChecked;
+      
+      // Habilitar/deshabilitar botón
+      registerBtn.disabled = !isFormValid;
+      registerBtn.classList.toggle('opacity-50', !isFormValid);
+      registerBtn.classList.toggle('cursor-not-allowed', !isFormValid);
+      
+      return isFormValid;
+    }
+    
+    // Manejar registro
+    async function handleRegister(e) {
+      e.preventDefault();
+      
+      if (!isFormValid) {
+        showMessage('Por favor, completa todos los campos correctamente', 'error');
+        return;
+      }
+      
+      // Mostrar estado de carga
+      btnText.textContent = 'CREANDO CUENTA...';
+      btnLoading.classList.remove('hidden');
+      registerBtn.disabled = true;
+      
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      
+      try {
+        const res = await fetch(`${API}/register`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ username, email, password })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          // Registro exitoso
+          if (data.token) {
+            // Guardar token y redirigir
+            localStorage.setItem('token', data.token);
+            showMessage('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
+            
+            // Redirigir a la página principal después de 2 segundos
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000);
+          } else {
+            showMessage(data.message || 'Registro exitoso', 'success');
+            
+            // Redirigir al login después de 2 segundos
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 2000);
+          }
+        } else {
+          // Error en el registro
+          showMessage(data.error || 'Error en el registro', 'error');
+          
+          // Restaurar botón
+          btnText.textContent = 'CREAR CUENTA';
+          btnLoading.classList.add('hidden');
+          registerBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error de conexión con el servidor', 'error');
+        
+        // Restaurar botón
+        btnText.textContent = 'CREAR CUENTA';
+        btnLoading.classList.add('hidden');
+        registerBtn.disabled = false;
+      }
+    }
+    
+    // Mostrar mensajes
+    function showMessage(text, type) {
+      messageDiv.textContent = text;
+      messageDiv.className = `p-4 rounded-lg text-center`;
+      
+      if (type === 'success') {
+        messageDiv.classList.add('bg-green-900', 'border', 'border-green-700', 'text-green-300');
+      } else if (type === 'error') {
+        messageDiv.classList.add('bg-red-900', 'border', 'border-red-700', 'text-red-300');
+      } else {
+        messageDiv.classList.add('bg-gray-800', 'border', 'border-gray-700', 'text-gray-300');
+      }
+      
+      messageDiv.classList.remove('hidden');
+      
+      // Auto-ocultar después de 5 segundos (excepto para éxito)
+      if (type !== 'success') {
+        setTimeout(() => {
+          messageDiv.classList.add('hidden');
+        }, 5000);
+      }
+    }
+    
+    // Prevenir envío con Enter fuera de los campos
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>

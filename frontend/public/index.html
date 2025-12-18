@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MillorNet - Secure Social Network</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              primary: '#00ffff',
+              secondary: '#ff00ff',
+              dark: '#0a0a0f',
+              card: '#11111f',
+              accent: '#00ffaa',
+              danger: '#ff0055'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'scan': 'scan 3s linear infinite'
+          },
+          keyframes: {
+            glow: {
+              '0%, 100%': { boxShadow: '0 0 10px #00ffff' },
+              '50%': { boxShadow: '0 0 20px #00ffff, 0 0 30px #00ffff' }
+            },
+            scan: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(100vh)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .cyber-grid {
+      background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    
+    .cyber-text-gradient {
+      background: linear-gradient(90deg, #00ffff, #ff00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .cyber-border-gradient {
+      border: 2px solid transparent;
+      background: linear-gradient(#0a0a0f, #0a0a0f) padding-box,
+                  linear-gradient(45deg, #00ffff, #ff00ff) border-box;
+    }
+  </style>
+</head>
+<body class="bg-cyber-dark text-white cyber-grid min-h-screen">
+  <!-- Scan line effect -->
+  <div class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyber-primary to-transparent animate-scan z-50"></div>
+
+  <!-- Contenedor principal -->
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-16">
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-full cyber-border-gradient flex items-center justify-center animate-float">
+          <i class="fas fa-shield-alt text-cyber-primary text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold cyber-text-gradient">MILLOR<span class="text-cyber-secondary">NET</span></h1>
+          <p class="text-gray-400 text-sm">Secure Social Network</p>
+        </div>
+      </div>
+      
+      <div id="authButtons" class="flex space-x-4">
+        <a href="/login" class="px-6 py-2 border border-cyber-primary text-cyber-primary rounded-full font-bold hover:bg-cyber-primary hover:text-black transition duration-300">
+          Iniciar Sesión
+        </a>
+        <a href="/register" class="px-6 py-2 bg-gradient-to-r from-cyber-primary to-cyan-600 rounded-full font-bold hover:opacity-90 transition">
+          Registrarse
+        </a>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-12">
+      <div>
+        <h2 class="text-5xl font-bold mb-6 cyber-text-gradient">
+          Conectate de Forma <span class="text-white">Segura</span>
+        </h2>
+        <p class="text-xl text-gray-300 mb-8">
+          MillorNet es la red social diseñada específicamente para profesionales de ciberseguridad, 
+          entusiastas de la privacidad y todos aquellos que valoran la seguridad digital.
+        </p>
+        
+        <div class="flex flex-wrap gap-4 mb-12">
+          <div class="flex items-center">
+            <i class="fas fa-shield-check text-cyber-accent mr-2"></i>
+            <span>Cifrado End-to-End</span>
+          </div>
+          <div class="flex items-center">
+            <i class="fas fa-user-secret text-cyber-primary mr-2"></i>
+            <span>Anonimato Controlado</span>
+          </div>
+          <div class="flex items-center">
+            <i class="fas fa-lock text-cyber-secondary mr-2"></i>
+            <span>Autenticación Segura</span>
+          </div>
+        </div>
+        
+        <div class="flex space-x-4">
+          <a href="/register" class="px-8 py-3 bg-gradient-to-r from-cyber-primary to-cyan-600 rounded-full font-bold text-lg hover:opacity-90 transition flex items-center">
+            <i class="fas fa-user-plus mr-2"></i> Crear Cuenta
+          </a>
+          <a href="#features" class="px-8 py-3 border border-gray-600 rounded-full font-bold text-lg hover:border-cyber-primary transition">
+            Saber Más
+          </a>
+        </div>
+      </div>
+      
+      <div class="relative">
+        <div class="cyber-border-gradient rounded-2xl p-8 animate-glow">
+          <div class="text-center mb-6">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-lock text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">Demo en Vivo</h3>
+            <p class="text-gray-400">Vista previa del feed seguro</p>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="p-4 bg-gray-900 rounded-lg">
+              <div class="flex items-center mb-2">
+                <div class="w-8 h-8 rounded-full bg-cyan-600 mr-3"></div>
+                <div>
+                  <p class="font-bold text-sm">@SecureUser</p>
+                  <p class="text-xs text-gray-400">2 min ago • 🔒 Private</p>
+                </div>
+              </div>
+              <p class="text-sm">Nuevo método de autenticación multifactor detectado en plataformas bancarias. #SecurityUpdate</p>
+            </div>
+            
+            <div class="p-4 bg-gray-900 rounded-lg">
+              <div class="flex items-center mb-2">
+                <div class="w-8 h-8 rounded-full bg-purple-600 mr-3"></div>
+                <div>
+                  <p class="font-bold text-sm">@CryptoGuard</p>
+                  <p class="text-xs text-gray-400">15 min ago • 🌐 Public</p>
+                </div>
+              </div>
+              <p class="text-sm">Alert: New phishing campaign targeting crypto wallets. Always verify URLs! #BlockchainSecurity</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20">
+      <h2 class="text-4xl font-bold text-center mb-12 cyber-text-gradient">Características de Seguridad</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="cyber-border-gradient rounded-2xl p-6 text-center">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-cyber-primary flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-key text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Cifrado Avanzado</h3>
+          <p class="text-gray-400">Todas tus conversaciones están protegidas con cifrado de grado militar.</p>
+        </div>
+        
+        <div class="cyber-border-gradient rounded-2xl p-6 text-center">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-cyber-secondary flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-user-shield text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Control de Privacidad</h3>
+          <p class="text-gray-400">Decide qué información compartir y con quién. Tú tienes el control total.</p>
+        </div>
+        
+        <div class="cyber-border-gradient rounded-2xl p-6 text-center">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-cyber-accent flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-bug text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Detección de Amenazas</h3>
+          <p class="text-gray-400">Sistema automático de detección de actividades sospechosas en tiempo real.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-12">
+      <div class="cyber-border-gradient rounded-2xl p-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <p class="text-4xl font-bold text-cyber-primary">10K+</p>
+            <p class="text-gray-400">Usuarios Activos</p>
+          </div>
+          <div>
+            <p class="text-4xl font-bold text-cyber-secondary">24/7</p>
+            <p class="text-gray-400">Monitoreo</p>
+          </div>
+          <div>
+            <p class="text-4xl font-bold text-cyber-accent">0</p>
+            <p class="text-gray-400">Fugas de Datos</p>
+          </div>
+          <div>
+            <p class="text-4xl font-bold text-white">99.9%</p>
+            <p class="text-gray-400">Uptime</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 text-center">
+      <div class="cyber-border-gradient rounded-2xl p-12">
+        <h2 class="text-3xl font-bold mb-6">¿Listo para unirte a la comunidad?</h2>
+        <p class="text-gray-300 mb-8 max-w-2xl mx-auto">
+          Protege tus conversaciones, comparte conocimientos de seguridad y conecta con profesionales 
+          en un entorno 100% seguro.
+        </p>
+        <a href="/register" class="inline-block px-10 py-4 bg-gradient-to-r from-cyber-primary to-cyan-600 rounded-full font-bold text-lg hover:opacity-90 transition">
+          <i class="fas fa-rocket mr-2"></i> Comenzar Ahora
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-16 pt-8 border-t border-gray-800">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 md:mb-0">
+          <div class="w-10 h-10 rounded-full cyber-border-gradient flex items-center justify-center mr-3">
+            <i class="fas fa-shield-alt text-cyber-primary"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold cyber-text-gradient">MILLORNET</h3>
+            <p class="text-sm text-gray-400">Secure Social Network</p>
+          </div>
+        </div>
+        
+        <div class="flex space-x-6 mb-4 md:mb-0">
+          <a href="#" class="text-gray-400 hover:text-cyber-primary transition">Privacidad</a>
+          <a href="#" class="text-gray-400 hover:text-cyber-primary transition">Seguridad</a>
+          <a href="#" class="text-gray-400 hover:text-cyber-primary transition">Términos</a>
+          <a href="#" class="text-gray-400 hover:text-cyber-primary transition">Contacto</a>
+        </div>
+        
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-cyber-primary transition">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-cyber-primary transition">
+            <i class="fab fa-github text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-cyber-primary transition">
+            <i class="fab fa-discord text-xl"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="text-center mt-8 pt-6 border-t border-gray-800">
+        <p class="text-sm text-gray-500">
+          <i class="fas fa-lock mr-1"></i>
+          MillorNet v2.0 • All connections are end-to-end encrypted • © 2024
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Verificar si el usuario ya está autenticado
+    document.addEventListener('DOMContentLoaded', function() {
+      // Esta función debería verificar en el backend si hay una sesión activa
+      // Por ahora es solo un ejemplo - en tu implementación real harías una petición al servidor
+      
+      // Ejemplo: si hay un token en localStorage, podrías redirigir al dashboard
+      // const token = localStorage.getItem('auth_token');
+      // if (token) {
+      //   window.location.href = '/dashboard.html'; // O cargar contenido dinámico
+      // }
+      
+      // Simulación: Si el usuario está en index.html y ya está autenticado,
+      // podríamos cambiar los botones por uno de "Ir al Dashboard"
+      const isAuthenticated = false; // Cambiar a true para probar el estado autenticado
+      
+      if (isAuthenticated) {
+        const authButtons = document.getElementById('authButtons');
+        authButtons.innerHTML = `
+          <a href="/dashboard" class="px-6 py-2 bg-gradient-to-r from-cyber-accent to-green-600 rounded-full font-bold hover:opacity-90 transition flex items-center">
+            <i class="fas fa-user-circle mr-2"></i> Ir al Dashboard
+          </a>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

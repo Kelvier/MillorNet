@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - MillorNet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              primary: '#00ffff',
+              secondary: '#ff00ff',
+              dark: '#0a0a0f',
+              card: '#11111f',
+              accent: '#00ffaa',
+              danger: '#ff0055'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'scan': 'scan 3s linear infinite'
+          },
+          keyframes: {
+            glow: {
+              '0%, 100%': { boxShadow: '0 0 10px #00ffff' },
+              '50%': { boxShadow: '0 0 20px #00ffff, 0 0 30px #00ffff' }
+            },
+            scan: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(100vh)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .cyber-grid {
+      background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+  </style>
+</head>
+<body class="bg-cyber-dark text-white cyber-grid min-h-screen">
+  <!-- Scan line effect -->
+  <div class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent animate-scan z-50"></div>
+
+  <!-- Verificación de autenticación (se ejecuta inmediatamente) -->
+  <script>
+    // Verificar autenticación antes de cargar cualquier cosa
+    (function() {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        // Si no hay token, redirigir al login
+        console.log('No hay token, redirigiendo a login...');
+        window.location.href = '/login';
+      } else {
+        console.log('Token encontrado, cargando dashboard...');
+      }
+    })();
+  </script>
+
+  <!-- Main container -->
+  <div class="container mx-auto px-4 py-4 max-w-7xl">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+      <div class="flex items-center space-x-4">
+        <a href="/" class="flex items-center space-x-3 hover:opacity-90 transition">
+          <div class="w-10 h-10 rounded-full border-2 border-cyan-500 flex items-center justify-center">
+            <i class="fas fa-shield-alt text-cyan-500"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-cyan-400">MILLOR<span class="text-purple-500">NET</span></h1>
+          </div>
+        </a>
+        
+        <!-- Navigation -->
+        <nav class="hidden md:flex space-x-1 ml-6">
+          <button class="px-4 py-2 rounded-full hover:bg-gray-800 transition flex items-center text-cyan-400">
+            <i class="fas fa-home mr-2"></i> Inicio
+          </button>
+          <button class="px-4 py-2 rounded-full hover:bg-gray-800 transition flex items-center text-gray-400">
+            <i class="fas fa-hashtag mr-2"></i> Explorar
+          </button>
+          <button class="px-4 py-2 rounded-full hover:bg-gray-800 transition flex items-center text-gray-400">
+            <i class="fas fa-bell mr-2"></i> Notificaciones
+          </button>
+          <button class="px-4 py-2 rounded-full hover:bg-gray-800 transition flex items-center text-gray-400">
+            <i class="fas fa-envelope mr-2"></i> Mensajes
+          </button>
+        </nav>
+      </div>
+      
+      <!-- User menu -->
+      <div class="flex items-center space-x-4">
+        <!-- Search bar -->
+        <div class="hidden md:block relative">
+          <input 
+            type="text" 
+            placeholder="Buscar en MillorNet..." 
+            class="pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-full w-64 focus:outline-none focus:border-cyan-500"
+          >
+          <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+        </div>
+        
+        <!-- User dropdown -->
+        <div class="relative group">
+          <button id="userMenuBtn" class="flex items-center space-x-2 px-3 py-2 rounded-full hover:bg-gray-800 transition">
+            <div id="userAvatarSmall" class="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center">
+              <span id="userInitial" class="font-bold">U</span>
+            </div>
+            <span id="usernameHeader" class="hidden md:inline">Usuario</span>
+            <i class="fas fa-chevron-down text-sm"></i>
+          </button>
+          
+          <!-- Dropdown menu -->
+          <div id="userDropdown" class="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-800 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+            <div class="p-4 border-b border-gray-800">
+              <p class="font-bold" id="dropdownUsername">@usuario</p>
+              <p class="text-sm text-gray-400" id="dropdownEmail">user@email.com</p>
+            </div>
+            <div class="p-2">
+              <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-800 transition">
+                <i class="fas fa-user mr-3 text-gray-400"></i> Mi perfil
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-800 transition">
+                <i class="fas fa-cog mr-3 text-gray-400"></i> Configuración
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-800 transition">
+                <i class="fas fa-shield-alt mr-3 text-gray-400"></i> Seguridad
+              </a>
+            </div>
+            <div class="p-2 border-t border-gray-800">
+              <button id="logoutBtn" class="flex items-center w-full px-3 py-2 rounded-lg hover:bg-red-900/30 text-red-400 transition">
+                <i class="fas fa-sign-out-alt mr-3"></i> Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Post button mobile -->
+        <button id="newPostMobile" class="md:hidden w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center">
+          <i class="fas fa-feather-alt"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- Left sidebar - Profile -->
+      <div class="lg:col-span-1">
+        <div class="border-2 border-transparent bg-gradient-to-br from-gray-900 to-cyber-dark rounded-2xl p-6 mb-6 sticky top-6">
+          <div class="flex flex-col items-center">
+            <!-- User avatar -->
+            <div class="w-24 h-24 rounded-full border-4 border-cyan-500 mb-4 overflow-hidden">
+              <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=cyber" alt="Avatar" class="w-full h-full">
+            </div>
+            
+            <!-- User info -->
+            <h2 id="userDisplayName" class="text-xl font-bold mb-1">Cargando...</h2>
+            <p id="userHandle" class="text-gray-400 mb-4">@usuario</p>
+            
+            <!-- Stats -->
+            <div class="w-full grid grid-cols-3 gap-4 text-center mb-6">
+              <div>
+                <p class="text-lg font-bold text-cyan-500" id="postCount">0</p>
+                <p class="text-xs text-gray-400">Posts</p>
+              </div>
+              <div>
+                <p class="text-lg font-bold text-purple-500" id="followingCount">0</p>
+                <p class="text-xs text-gray-400">Siguiendo</p>
+              </div>
+              <div>
+                <p class="text-lg font-bold text-green-500" id="followersCount">0</p>
+                <p class="text-xs text-gray-400">Seguidores</p>
+              </div>
+            </div>
+            
+            <!-- Action buttons -->
+            <button id="editProfileBtn" class="w-full py-2 border border-gray-700 rounded-full mb-3 hover:border-cyan-500 transition">
+              Editar perfil
+            </button>
+            <button id="securityBtn" class="w-full py-2 bg-gradient-to-r from-cyan-700 to-gray-900 rounded-full hover:opacity-90 transition">
+              <i class="fas fa-shield-alt mr-2"></i> Seguridad
+            </button>
+          </div>
+        </div>
+
+        <!-- Trending -->
+        <div class="border-2 border-transparent bg-gradient-to-br from-gray-900 to-cyber-dark rounded-2xl p-6">
+          <h3 class="text-lg font-bold mb-4 flex items-center">
+            <i class="fas fa-fire text-red-500 mr-2"></i>
+            Tendencias
+          </h3>
+          <div class="space-y-4">
+            <div class="hover:bg-gray-900 p-3 rounded-lg cursor-pointer transition">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-400">Ciberseguridad</span>
+                <span class="text-xs text-cyan-500">1.2K</span>
+              </div>
+              <p class="font-medium">#ZeroTrust</p>
+            </div>
+            <div class="hover:bg-gray-900 p-3 rounded-lg cursor-pointer transition">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-400">Hacking</span>
+                <span class="text-xs text-cyan-500">845</span>
+              </div>
+              <p class="font-medium">#EthicalHacking</p>
+            </div>
+            <div class="hover:bg-gray-900 p-3 rounded-lg cursor-pointer transition">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-400">Privacidad</span>
+                <span class="text-xs text-cyan-500">632</span>
+              </div>
+              <p class="font-medium">#GDPR</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="lg:col-span-2">
+        <!-- Create post -->
+        <div class="border-2 border-transparent bg-gradient-to-br from-gray-900 to-cyber-dark rounded-2xl p-6 mb-6">
+          <div class="flex space-x-4">
+            <div id="postUserAvatar" class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center">
+              <i class="fas fa-user-secret text-cyan-500"></i>
+            </div>
+            <div class="flex-1">
+              <textarea 
+                id="postContent" 
+                placeholder="¿Qué está pasando en el mundo de la ciberseguridad? #Cybersecurity" 
+                class="w-full bg-transparent border-b border-gray-800 focus:border-cyan-500 focus:outline-none resize-none pb-3 placeholder-gray-500"
+                rows="3"
+              ></textarea>
+              <div class="flex justify-between items-center pt-4">
+                <div class="flex space-x-4">
+                  <button id="postPrivacyBtn" class="text-gray-400 hover:text-cyan-500 transition" title="Privado" data-privacy="public">
+                    <i class="fas fa-globe"></i>
+                  </button>
+                  <button id="postHashtagBtn" class="text-gray-400 hover:text-cyan-500 transition" title="Agregar hashtag">
+                    <i class="fas fa-hashtag"></i>
+                  </button>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <span id="charCount" class="text-sm text-gray-500">280</span>
+                  <button id="postBtn" class="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full font-bold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Postear
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feed -->
+        <div id="feed" class="space-y-6">
+          <!-- Posts will be loaded here dynamically -->
+        </div>
+        
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
+          <p class="mt-2 text-gray-500">Cargando publicaciones...</p>
+        </div>
+      </div>
+
+      <!-- Right sidebar -->
+      <div class="lg:col-span-1">
+        <!-- Security status -->
+        <div class="border-2 border-transparent bg-gradient-to-br from-gray-900 to-cyber-dark rounded-2xl p-6 mb-6">
+          <h3 class="text-lg font-bold mb-4 flex items-center">
+            <i class="fas fa-shield-alt text-cyan-500 mr-2"></i>
+            Estado de Seguridad
+          </h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full bg-green-500 mr-3 animate-pulse"></div>
+                <span>Conexión</span>
+              </div>
+              <span class="text-green-500" id="connectionStatus">Segura</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                <span>2FA</span>
+              </div>
+              <span class="text-green-500" id="twoFactorStatus">Activado</span>
+            </div>
+          </div>
+          <button id="runSecurityScan" class="w-full mt-4 py-3 bg-gradient-to-r from-cyan-700 to-gray-900 rounded-lg font-bold hover:opacity-90 transition">
+            Ejecutar escaneo
+          </button>
+        </div>
+
+        <!-- Who to follow -->
+        <div class="border-2 border-transparent bg-gradient-to-br from-gray-900 to-cyber-dark rounded-2xl p-6 mb-6">
+          <h3 class="text-lg font-bold mb-4">A quién seguir</h3>
+          <div id="suggestedUsers" class="space-y-4">
+            <!-- Suggested users will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Security tip -->
+        <div class="border-2 border-transparent bg-gradient-to-br from-gray-900 to-cyber-dark rounded-2xl p-6">
+          <h3 class="text-lg font-bold mb-4 text-cyan-400">Consejo de Seguridad</h3>
+          <div class="p-4 bg-gray-900 rounded-lg">
+            <i class="fas fa-lightbulb text-yellow-500 text-xl mb-3 block"></i>
+            <p class="text-sm" id="securityTip">Usa contraseñas únicas para cada cuenta y considera usar un gestor de contraseñas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuración
+    const API_BASE = 'http://176.84.214.29:3000/api';
+    
+    // Estado de la aplicación
+    let currentUser = null;
+    
+    // Cargar datos del usuario
+    function loadUserData() {
+      const userEmail = localStorage.getItem('userEmail') || 'usuario@millornet.com';
+      const username = localStorage.getItem('username') || 
+                      userEmail.split('@')[0] || 
+                      'cyberuser';
+      
+      currentUser = {
+        username: username,
+        email: userEmail,
+        displayName: username.charAt(0).toUpperCase() + username.slice(1),
+        avatarSeed: username,
+        posts: Math.floor(Math.random() * 20),
+        following: Math.floor(Math.random() * 50),
+        followers: Math.floor(Math.random() * 100)
+      };
+      
+      // Actualizar UI con datos del usuario
+      updateUserUI();
+    }
+    
+    // Actualizar interfaz de usuario con datos del usuario
+    function updateUserUI() {
+      if (!currentUser) return;
+      
+      // Actualizar header
+      document.getElementById('usernameHeader').textContent = currentUser.displayName;
+      document.getElementById('userInitial').textContent = currentUser.displayName.charAt(0).toUpperCase();
+      
+      // Actualizar dropdown
+      document.getElementById('dropdownUsername').textContent = `@${currentUser.username}`;
+      document.getElementById('dropdownEmail').textContent = currentUser.email;
+      
+      // Actualizar perfil lateral
+      document.getElementById('userDisplayName').textContent = currentUser.displayName;
+      document.getElementById('userHandle').textContent = `@${currentUser.username}`;
+      document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.avatarSeed}`;
+      document.getElementById('userAvatarSmall').innerHTML = `<span class="font-bold">${currentUser.displayName.charAt(0).toUpperCase()}</span>`;
+      document.getElementById('postUserAvatar').innerHTML = `<span class="font-bold text-lg">${currentUser.displayName.charAt(0).toUpperCase()}</span>`;
+      
+      // Actualizar estadísticas
+      document.getElementById('postCount').textContent = currentUser.posts;
+      document.getElementById('followingCount').textContent = currentUser.following;
+      document.getElementById('followersCount').textContent = currentUser.followers;
+    }
+    
+    // Cargar feed de publicaciones
+    function loadFeed() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const feedContainer = document.getElementById('feed');
+      
+      // Simular carga de publicaciones
+      setTimeout(() => {
+        // Datos de ejemplo
+        const examplePosts = [
+          {
+            id: 1,
+            user: "SecureAdmin",
+            handle: "@secureadmin",
+            time: "2h",
+            content: "Nueva actualización de seguridad disponible para todos los usuarios. Recomiendo aplicar los parches inmediatamente. #SecurityUpdate #PatchTuesday",
+            comments: 24,
+            likes: 89,
+            retweets: 12,
+            privacy: "public",
+            verified: true
+          },
+          {
+            id: 2,
+            user: "CryptoGuard",
+            handle: "@cryptoguard",
+            time: "4h",
+            content: "⚠️ Alerta de phishing: Nuevo correo fraudulento que parece venir de exchanges conocidos. Verificad siempre las URLs antes de introducir credenciales. #CryptoSecurity",
+            comments: 42,
+            likes: 156,
+            retweets: 31,
+            privacy: "public",
+            verified: true
+          }
+        ];
+        
+        // Limpiar feed
+        feedContainer.innerHTML = '';
+        
+        // Agregar publicaciones al feed
+        examplePosts.forEach(post => {
+          const postElement = createPostElement(post);
+          feedContainer.appendChild(postElement);
+        });
+        
+        loadingIndicator.classList.add('hidden');
+      }, 1000);
+    }
+    
+    // Crear elemento de publicación
+    function createPostElement(post) {
+      const postDiv = document.createElement('div');
+      postDiv.className = 'border-2 border-transparent bg-gradient-to-br from-gray-900 to-cyber-dark rounded-2xl p-6';
+      
+      const verifiedBadge = post.verified ? '<i class="fas fa-shield-check text-green-500 ml-1"></i>' : '';
+      
+      postDiv.innerHTML = `
+        <div class="flex justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+            <div>
+              <h4 class="font-bold">${post.user} ${verifiedBadge}</h4>
+              <p class="text-xs text-gray-400">${post.handle} • ${post.time}</p>
+            </div>
+          </div>
+          <button class="text-gray-400 hover:text-white">
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+        </div>
+        <p class="mb-4">${post.content}</p>
+        <div class="flex space-x-8 text-gray-400">
+          <button class="flex items-center space-x-2 hover:text-cyan-500 transition">
+            <i class="far fa-comment"></i>
+            <span>${post.comments}</span>
+          </button>
+          <button class="flex items-center space-x-2 hover:text-purple-500 transition">
+            <i class="far fa-heart"></i>
+            <span>${post.likes}</span>
+          </button>
+          <button class="flex items-center space-x-2 hover:text-green-500 transition">
+            <i class="fas fa-retweet"></i>
+            <span>${post.retweets}</span>
+          </button>
+        </div>
+      `;
+      
+      return postDiv;
+    }
+    
+    // Cargar usuarios sugeridos
+    function loadSuggestedUsers() {
+      const suggestedUsers = [
+        { name: "CryptoGuard", handle: "@cryptoguard", followers: "2.5K", verified: true },
+        { name: "DataProtector", handle: "@dataprotector", followers: "1.8K", verified: true },
+        { name: "PenTestPro", handle: "@pentestpro", followers: "3.2K", verified: false }
+      ];
+      
+      const container = document.getElementById('suggestedUsers');
+      container.innerHTML = '';
+      
+      suggestedUsers.forEach(user => {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'flex items-center justify-between';
+        userDiv.innerHTML = `
+          <div class="flex items-center">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 mr-3"></div>
+            <div>
+              <p class="font-bold">${user.name} ${user.verified ? '<i class="fas fa-shield-check text-green-500 ml-1"></i>' : ''}</p>
+              <p class="text-sm text-gray-400">${user.handle}</p>
+            </div>
+          </div>
+          <button class="px-4 py-1 bg-white text-black rounded-full text-sm font-bold hover:bg-gray-200 transition">
+            Seguir
+          </button>
+        `;
+        container.appendChild(userDiv);
+      });
+    }
+    
+    // Configurar event listeners
+    function setupEventListeners() {
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+      
+      // Crear nuevo post
+      document.getElementById('postBtn').addEventListener('click', createNewPost);
+      
+      // Escaner de seguridad
+      document.getElementById('runSecurityScan').addEventListener('click', runSecurityScan);
+      
+      // Editar perfil
+      document.getElementById('editProfileBtn').addEventListener('click', () => {
+        alert('Función de edición de perfil en desarrollo...');
+      });
+      
+      // Botón de seguridad
+      document.getElementById('securityBtn').addEventListener('click', () => {
+        alert('Configuración de seguridad en desarrollo...');
+      });
+      
+      // Agregar hashtag
+      document.getElementById('postHashtagBtn').addEventListener('click', () => {
+        const textarea = document.getElementById('postContent');
+        const currentText = textarea.value;
+        textarea.value = currentText + ' #';
+        textarea.focus();
+        validatePostButton();
+      });
+      
+      // Configurar contador de caracteres
+      const textarea = document.getElementById('postContent');
+      const charCount = document.getElementById('charCount');
+      
+      textarea.addEventListener('input', function() {
+        const remaining = 280 - this.value.length;
+        charCount.textContent = remaining;
+        
+        if (remaining < 0) {
+          charCount.classList.add('text-red-500');
+        } else if (remaining < 20) {
+          charCount.classList.add('text-yellow-500');
+        } else {
+          charCount.classList.remove('text-red-500', 'text-yellow-500');
+        }
+        
+        validatePostButton();
+      });
+      
+      // Validar botón de post inicial
+      validatePostButton();
+    }
+    
+    // Validar botón de post
+    function validatePostButton() {
+      const textarea = document.getElementById('postContent');
+      const content = textarea.value || '';
+      const postBtn = document.getElementById('postBtn');
+      
+      if (content.trim().length > 0 && content.length <= 280) {
+        postBtn.disabled = false;
+      } else {
+        postBtn.disabled = true;
+      }
+    }
+    
+    // Crear nuevo post
+    function createNewPost() {
+      const textarea = document.getElementById('postContent');
+      const content = textarea.value;
+      
+      if (!content.trim()) {
+        alert('Por favor, escribe algo antes de publicar');
+        return;
+      }
+      
+      if (content.length > 280) {
+        alert('El post no puede exceder los 280 caracteres');
+        return;
+      }
+      
+      // Crear nuevo objeto de post
+      const newPost = {
+        id: Date.now(),
+        user: currentUser.displayName,
+        handle: `@${currentUser.username}`,
+        time: 'Ahora',
+        content: content,
+        comments: 0,
+        likes: 0,
+        retweets: 0,
+        privacy: 'public',
+        verified: false
+      };
+      
+      // Añadir al feed
+      const feedContainer = document.getElementById('feed');
+      const postElement = createPostElement(newPost);
+      feedContainer.insertBefore(postElement, feedContainer.firstChild);
+      
+      // Limpiar textarea
+      textarea.value = '';
+      
+      // Actualizar contador de caracteres
+      document.getElementById('charCount').textContent = '280';
+      document.getElementById('charCount').className = 'text-sm text-gray-500';
+      
+      // Actualizar estadísticas del usuario
+      currentUser.posts++;
+      document.getElementById('postCount').textContent = currentUser.posts;
+      
+      // Mostrar mensaje
+      showNotification('¡Post publicado con éxito!', 'success');
+    }
+    
+    // Ejecutar escaneo de seguridad
+    function runSecurityScan() {
+      const button = document.getElementById('runSecurityScan');
+      const originalText = button.textContent;
+      
+      button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Escaneando...';
+      button.disabled = true;
+      
+      setTimeout(() => {
+        button.innerHTML = '<i class="fas fa-check mr-2"></i> Escaneo completo';
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+          showNotification('Escaneo de seguridad completado - Todo seguro', 'success');
+        }, 1500);
+      }, 2000);
+    }
+    
+    // Manejar logout
+    function handleLogout() {
+      if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+        // Eliminar datos de sesión
+        localStorage.removeItem('token');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('username');
+        localStorage.removeItem('remember');
+        
+        // Redirigir a la página principal
+        window.location.href = '/';
+      }
+    }
+    
+    // Mostrar notificación
+    function showNotification(message, type = 'info') {
+      // Crear notificación temporal
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 bg-gray-900 border ${type === 'success' ? 'border-green-500' : 'border-cyan-500'} px-6 py-3 rounded-lg shadow-xl z-50`;
+      notification.innerHTML = `
+        <div class="flex items-center">
+          <i class="fas ${type === 'success' ? 'fa-check-circle text-green-500' : 'fa-info-circle text-cyan-500'} mr-3"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Remover después de 3 segundos
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+    
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUserData();
+      loadFeed();
+      loadSuggestedUsers();
+      setupEventListeners();
+      
+      console.log('Dashboard cargado correctamente');
+    });
+  </script>
+</body>
+</html>
