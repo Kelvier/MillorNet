@@ -52,9 +52,6 @@ DMZ	10.0.20.0/24	Servicios expuestos
 Red de Gestión	10.0.30.0/24	Administración
 Red Docker Interna	10.10.0.0/16	Comunicación entre contenedores
 📡 Router Corporativo (OpenWRT)
-
-Dispositivo perimetral encargado del enrutamiento y seguridad.
-
 Interfaces
 Interfaz	Dirección IP
 WAN	DHCP
@@ -154,7 +151,7 @@ Autenticación débil
 
 IP Docker: 10.10.0.53
 
-Dominio interno:
+Dominios internos:
 
 millornet.local
 intranet.millornet.local
