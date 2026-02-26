@@ -1,201 +1,208 @@
-🛡️ MillorNet – Infraestructura Corporativa de Laboratorio para Simulación de Pentesting
-📌 Descripción del Proyecto
+# 🔒 Millornet — Empresa de Ciberseguridad y Pentesting
 
-MillorNet es una empresa ficticia especializada en servicios de auditoría de seguridad y pentesting dirigidos a instituciones del sector público.
+> Proyecto Final de ASIX 2025/2026 — Infraestructura empresarial de ciberseguridad montada sobre VirtualBox con Ubuntu Server, Docker y múltiples servicios de red.
 
-Este proyecto representa la infraestructura corporativa interna simulada de la empresa, diseñada como laboratorio práctico para el Trabajo de Fin de Curso en Ciberseguridad.
+---
 
-El entorno permite:
+## 📋 Descripción
 
-Diseñar una arquitectura empresarial realista.
+**Millornet** es una infraestructura empresarial simulada de ciberseguridad y pentesting. El proyecto replica un entorno real con segmentación de redes, servicios en contenedores Docker, monitorización, backups y una zona de laboratorio para pruebas de pentesting.
 
-Implementar segmentación de red profesional.
+Todo está desplegado sobre **VirtualBox** usando **Ubuntu Server 24.04 LTS**.
 
-Desplegar servicios corporativos en contenedores.
+---
 
-Introducir vulnerabilidades controladas.
+## 🗺️ Arquitectura de Red
 
-Ejecutar simulaciones ofensivas (Red Team).
+```
+[Internet]
+    |
+[Adaptador Puente] — enp0s3 (WAN 192.168.1.0/24)
+    |
+[millornet-router] — Ubuntu Server
+    |
+    ├── enp0s8 ──→ Red Empresa    (10.10.10.0/24)  — Servidor, herramientas
+    ├── enp0s9 ──→ Red DMZ        (10.20.20.0/24)  — Web, Mail, FTP
+    └── enp0s10 ──→ Red Laboratorio (10.30.30.0/24) — Máquinas vulnerables
+```
 
-Analizar técnicas defensivas (Blue Team).
+### Política de Segmentación
+
+| Origen | Destino | Permitido |
+|---|---|---|
+| Empresa | Internet | ✅ |
+| Empresa | DMZ | ✅ |
+| Empresa | Laboratorio | ✅ |
+| DMZ | Internet | ✅ |
+| DMZ | Empresa | ❌ |
+| Laboratorio | Cualquiera | ❌ |
 
-⚠️ Todo el entorno es aislado y de uso exclusivamente académico.
+---
 
-🏗️ Arquitectura General
+## 🖥️ Máquinas Virtuales
 
-La infraestructura de MillorNet está compuesta por:
+| VM | Hostname | IP | Rol |
+|---|---|---|---|
+| Router | millornet-router | 10.10.10.1 | Router, DNS, DHCP, Firewall, VPN |
+| Servidor | millornet-server | 10.10.10.10 | Docker, Portainer, Grafana, Backups |
+| DMZ | millornet-dmz | 10.20.20.10 | Nginx, Mailserver, FTP |
+| Laboratorio | millornet-lab | 10.30.30.x | Contenedores vulnerables *(WIP)* |
 
-1 Router/Firewall basado en OpenWRT
+---
 
-1 Servidor Ubuntu Server (host principal)
+## 🔧 Servicios por Máquina
 
-Servicios desplegados en contenedores Docker
+### 🛡️ Router (millornet-router)
 
-Segmentación en LAN, DMZ y red de gestión
+| Servicio | Software | Función |
+|---|---|---|
+| NAT / Enrutamiento | iptables | Salida a internet para redes internas |
+| DHCP | isc-dhcp-server | Asignación automática de IPs |
+| DNS | Bind9 | Zonas internas + forwarding externo |
+| Firewall | iptables | Segmentación y control de tráfico |
+| VPN | WireGuard | Acceso remoto seguro |
+| Monitorización | ntopng | Análisis de tráfico en tiempo real |
+| Anti fuerza bruta | Fail2ban | Bloqueo automático de atacantes SSH |
 
-Políticas de firewall restrictivas
+**Zonas DNS configuradas:**
+- `millornet.local` → Red empresa
+- `dmz.millornet.local` → Red DMZ
+- `lab.millornet.local` → Red laboratorio
 
-🌐 Diseño de Red Corporativa
-📍 Espacio de Direccionamiento
+---
 
-Se ha reservado el rango privado:
+### 🐳 Servidor Principal (millornet-server)
 
-10.0.0.0/16
+Stack Docker Compose con los siguientes contenedores:
 
-Este diseño permite escalabilidad y crecimiento futuro, simulando un entorno empresarial real.
-
-🔷 Segmentación de Red
-Zona	Subred	Descripción
-WAN	DHCP (NAT hipervisor)	Simulación de Internet
-LAN Corporativa	10.0.10.0/24	Red interna empleados
-DMZ	10.0.20.0/24	Servicios expuestos
-Red de Gestión	10.0.30.0/24	Administración
-Red Docker Interna	10.10.0.0/16	Comunicación entre contenedores
-📡 Router Corporativo (OpenWRT)
-Interfaces
-Interfaz	Dirección IP
-WAN	DHCP
-LAN	10.0.10.1
-DMZ	10.0.20.1
-MGMT	10.0.30.1
-Funciones
-
-Gateway principal
-
-Firewall con políticas restrictivas
-
-NAT
-
-Port Forwarding controlado
-
-DHCP para red LAN
-
-Segmentación entre zonas
-
-🖥️ Servidor Principal – Ubuntu Server
-
-Hostname:
-
-srv-core.millornet.local
-Interfaces
-Red	IP
-LAN	10.0.10.10
-DMZ	10.0.20.10
-MGMT	10.0.30.10
-Funciones
-
-Host de contenedores Docker
-
-Servidor DNS interno
-
-Proxy corporativo
-
-Servidor Web corporativo
-
-Entorno vulnerable de pruebas
-
-Repositorio interno
-
-🐳 Infraestructura Docker
-
-Todos los servicios empresariales se ejecutan en contenedores aislados.
-
-Red Docker
-10.10.0.0/16
-
-Ejemplo de creación:
-
-docker network create \
-  --subnet 10.10.0.0/16 \
-  millornet_net
-📦 Servicios Implementados
-🌍 Reverse Proxy (Nginx)
-
-IP interna Docker: 10.10.0.10
-
-Publicación hacia DMZ
-
-Gestión de tráfico HTTP/HTTPS
-
-🌐 Servidor Web Corporativo
-
-IP Docker: 10.10.0.20
-
-Accesible desde DMZ
-
-Vulnerabilidades intencionadas:
-
-Versión desactualizada
-
-Directory listing habilitado
-
-Configuración insegura TLS
-
-🧪 Aplicación Web Vulnerable
-
-IP Docker: 10.10.0.30
-
-Vulnerabilidades:
-
-SQL Injection
-
-XSS
-
-Command Injection
-
-File Upload inseguro
-
-Autenticación débil
-
-🧭 Servidor DNS Interno
-
-IP Docker: 10.10.0.53
-
-Dominios internos:
-
-millornet.local
-intranet.millornet.local
-dev.millornet.local
-
-Función:
-
-Resolución interna
-
-Simulación de ataques DNS
-
-🛜 Proxy Corporativo (Squid)
-
-IP Docker: 10.10.0.40
-
-Puerto: 3128
-
-Vulnerabilidades:
-
-ACL mal configuradas
-
-Autenticación básica débil
-
-Posible abuso como proxy abierto
-
-🔥 Políticas de Firewall
-
-Configuradas en OpenWRT siguiendo modelo corporativo:
-
-Reglas Principales
-
-❌ WAN → LAN → Denegado
-
-❌ WAN → MGMT → Denegado
-
-✅ WAN → DMZ (puertos 80, 443)
-
-❌ DMZ → LAN → Denegado
-
-✅ LAN → WAN → Permitido
-
-✅ MGMT → Todos → Permitido (solo administradores)
-
-Redirección de Puertos
-Puerto Externo	Destino Interno
-80	10.0.20.10
-443	10.0.20.10
+| Contenedor | Imagen | Puerto | Función |
+|---|---|---|---|
+| millornet-traefik | traefik:latest | 80, 443, 8080 | Proxy inverso |
+| millornet-portainer | portainer/portainer-ce | 9000 | Panel de gestión Docker |
+| millornet-duplicati | linuxserver/duplicati | 8200 | Backups cifrados AES-256 |
+| millornet-prometheus | prom/prometheus | 9090 | Recolección de métricas |
+| millornet-grafana | grafana/grafana | 3000 | Dashboard de monitorización |
+| millornet-node-exporter | prom/node-exporter | 9100 | Métricas del sistema |
+| millornet-cadvisor | gcr.io/cadvisor | 8081 | Métricas de contenedores |
+
+---
+
+### 🌐 DMZ (millornet-dmz)
+
+| Contenedor | Imagen | Puerto | Dominio |
+|---|---|---|---|
+| dmz-nginx | nginx:latest | 80, 443 | www.dmz.millornet.local |
+| dmz-mailserver | docker-mailserver | 25, 587, 993 | mail.dmz.millornet.local |
+| dmz-ftp | garethflowers/ftp-server | 20, 21 | ftp.dmz.millornet.local |
+
+---
+
+## 🚀 Cómo levantar la infraestructura
+
+### 1. Requisitos
+- VirtualBox 7.x
+- 4 VMs con Ubuntu Server 24.04 LTS
+- Mínimo 8GB RAM total recomendado
+
+### 2. Router
+```bash
+# Configurar interfaces (Netplan)
+sudo netplan apply
+
+# Levantar servicios
+sudo systemctl start isc-dhcp-server bind9 wg-quick@wg0 fail2ban ntopng
+sudo bash /etc/firewall-millornet.sh
+```
+
+### 3. Servidor principal
+```bash
+cd ~/millornet
+sudo chmod 666 /var/run/docker.sock
+docker compose up -d
+```
+
+### 4. DMZ
+```bash
+cd ~/millornet-dmz
+sudo chmod 666 /var/run/docker.sock
+docker compose up -d
+```
+
+---
+
+## 🌍 Acceso a los paneles web
+
+Desde tu PC usando SSH tunneling:
+
+```bash
+# Tunel al servidor
+ssh -L 9000:10.10.10.10:9000 -L 3000:10.10.10.10:3000 -L 8080:10.10.10.10:8080 -L 8200:10.10.10.10:8200 ikervp@192.168.56.102
+
+# Tunel a la DMZ
+ssh -L 8888:10.20.20.10:80 ikervp@192.168.56.103
+```
+
+| Panel | URL | Credenciales |
+|---|---|---|
+| Portainer | http://localhost:9000 | admin / *configurado al instalar* |
+| Grafana | http://localhost:3000 | admin / Millornet2026! |
+| Traefik | http://localhost:8080 | Sin autenticación |
+| Duplicati | http://localhost:8200 | alumnes |
+| Web DMZ | http://localhost:8888 | Pública |
+| ntopng | http://192.168.1.39:3000 | admin / admin |
+
+---
+
+## 🔮 Planes a Futuro
+
+- [ ] Despliegue de red de laboratorio con contenedores vulnerables (DVWA, WebGoat, Juice Shop, Metasploitable)
+- [ ] Instalación de herramientas de pentesting (Metasploit, Burp Suite, Nmap, Wireshark)
+- [ ] Implementación de Wazuh como SIEM
+- [ ] Certificados SSL/TLS con Let's Encrypt
+- [ ] Autenticación 2FA en Portainer y Grafana
+- [ ] Logs centralizados con ELK Stack
+- [ ] Informes de pentesting sobre los contenedores vulnerables
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+millornet/
+├── docker-compose.yml          # Stack servidor principal
+├── traefik/
+│   └── traefik.yml
+├── prometheus/
+│   └── prometheus.yml
+├── duplicati/
+├── backups/
+└── millornet-dmz/
+    ├── docker-compose.yml      # Stack DMZ
+    ├── nginx/
+    │   ├── html/index.html
+    │   └── conf/default.conf
+    ├── mailserver/
+    └── ftp/
+```
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+![Ubuntu](https://img.shields.io/badge/Ubuntu_Server-24.04-E95420?style=flat&logo=ubuntu&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat&logo=grafana&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat&logo=prometheus&logoColor=white)
+![WireGuard](https://img.shields.io/badge/WireGuard-VPN-88171A?style=flat&logo=wireguard&logoColor=white)
+
+---
+
+## 👤 Autores
+
+**Iker** — Proyecto Final ASIX 2025/2026
+**Enric** — Proyecto Final ASIX 2025/2026
+
+---
+
+> ⚠️ **Aviso:** Este proyecto es un entorno de laboratorio educativo. Las credenciales visibles en este README son de uso interno en entorno simulado y no deben usarse en producción.
