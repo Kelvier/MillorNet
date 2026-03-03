@@ -1,0 +1,59 @@
+services:
+
+  # Servidor web
+  nginx:
+    image: nginx:latest
+    container_name: dmz-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - dmz-network
+
+  # Servidor de correo
+  mailserver:
+    image: docker.io/mailserver/docker-mailserver:latest
+    container_name: dmz-mailserver
+    hostname: mail.dmz.millornet.local
+    restart: always
+    ports:
+      - "25:25"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - ./mailserver/data:/var/mail
+      - ./mailserver/state:/var/mail-state
+      - ./mailserver/config:/tmp/docker-mailserver
+    environment:
+      - ENABLE_SPAMASSASSIN=0
+      - ENABLE_CLAMAV=0
+      - ENABLE_FAIL2BAN=0
+      - SSL_TYPE=none
+      - PERMIT_DOCKER=network
+    networks:
+      - dmz-network
+
+  # Servidor FTP
+  ftp:
+    image: garethflowers/ftp-server
+    container_name: dmz-ftp
+    restart: always
+    ports:
+      - "20:20"
+      - "21:21"
+      - "40000-40009:40000-40009"
+    environment:
+      - FTP_USER=millornet
+      - FTP_PASS=Millornet2026!
+    volumes:
+      - ./ftp/data:/home/user
+    networks:
+      - dmz-network
+
+networks:
+  dmz-network:
+    driver: bridge
