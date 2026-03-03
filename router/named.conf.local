@@ -1,0 +1,33 @@
+# Zona principal empresa
+zone "millornet.local" {
+    type master;
+    file "/etc/bind/zones/db.millornet.local";
+};
+
+# Zona DMZ
+zone "dmz.millornet.local" {
+    type master;
+    file "/etc/bind/zones/db.dmz.millornet.local";
+};
+
+# Zona laboratorio víctimas
+zone "lab.millornet.local" {
+    type master;
+    file "/etc/bind/zones/db.lab.millornet.local";
+};
+
+# Zonas inversas
+zone "10.10.10.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.10.10.10";
+};
+
+zone "10.20.20.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.10.20.20";
+};
+
+zone "10.30.30.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.10.30.30";
+};

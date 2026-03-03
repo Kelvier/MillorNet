@@ -1,0 +1,11 @@
+[Unit]
+Description=Firewall Millornet
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/etc/firewall-millornet.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

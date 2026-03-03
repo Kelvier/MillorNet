@@ -1,0 +1,11 @@
+$TTL 604800
+@   IN  SOA router.lab.millornet.local. admin.lab.millornet.local. (
+            2026022501
+            3600
+            1800
+            604800
+            604800 )
+
+@           IN  NS      router.lab.millornet.local.
+router      IN  A       10.30.30.1
+victima1    IN  A       10.30.30.10

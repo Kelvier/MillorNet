@@ -1,0 +1,16 @@
+[DEFAULT]
+# Tiempo baneado (1 hora)
+bantime = 3600
+# Ventana de tiempo para contar intentos (10 minutos)
+findtime = 600
+# Número de intentos antes de banear
+maxretry = 5
+# Backend de logs
+backend = systemd
+
+[sshd]
+enabled = true
+port = ssh
+logpath = %(sshd_log)s
+maxretry = 3
+bantime = 7200
