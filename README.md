@@ -97,6 +97,37 @@ Stack Docker Compose con los siguientes contenedores:
 
 ---
 
+## 👥 Usuarios del Sistema
+
+### Administradores
+| Usuario | Máquina | Sudo | Docker | Descripción |
+|---|---|---|---|---|
+| ikervp | Router + Servidor + DMZ | ✅ | ✅ | Administrador principal |
+| enrinctg | Router + Servidor | ✅ | ✅ | Administrador secundario |
+
+### Empleados (Servidor)
+| Usuario | Sudo | Docker | Grupo | Descripción |
+|---|---|---|---|---|
+| dev-millornet | ❌ | ✅ | docker | Gestiona contenedores Docker |
+| analista-millornet | ❌ | ❌ | adm | Solo lectura de logs y monitoreo |
+| invitado-millornet | ❌ | ❌ | — | Acceso muy limitado (shell restringida) |
+
+### Empleados (DMZ)
+| Usuario | Sudo | Docker | Grupo | Descripción |
+|---|---|---|---|---|
+| webmaster-millornet | ❌ | ✅ | docker | Gestiona la web Nginx |
+| invitado-millornet | ❌ | ❌ | — | Acceso muy limitado (shell restringida) |
+
+### Acceso SSH
+| Usuario | Desde red local | Desde VPN |
+|---|---|---|
+| ikervp | ✅ | ✅ |
+| enrinctg | ✅ | ✅ |
+| dev-millornet | ✅ | ✅ |
+| analista-millornet | ✅ | ✅ |
+| webmaster-millornet | ✅ (DMZ) | ✅ |
+| invitado-millornet | ✅ | ❌ |
+
 ## 🚀 Cómo levantar la infraestructura
 
 ### 1. Requisitos
