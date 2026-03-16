@@ -175,12 +175,12 @@ ssh -L 8888:10.20.20.10:80 ikervp@192.168.56.103
 
 | Panel | URL | Credenciales |
 |---|---|---|
-| Portainer | http://localhost:9000 | admin / *configurado al instalar* |
-| Grafana | http://localhost:3000 | admin / Millornet2026! |
+| Portainer | http://localhost:9000 | Ver `.env` |
+| Grafana | http://localhost:3000 | Ver `.env` |
 | Traefik | http://localhost:8080 | Sin autenticación |
-| Duplicati | http://localhost:8200 | alumnes |
+| Duplicati | http://localhost:8200 | Ver `.env` |
 | Web DMZ | http://localhost:8888 | Pública |
-| ntopng | http://192.168.1.39:3000 | admin / admin |
+| ntopng | http://192.168.1.39:3000 | Ver `.env` |
 
 ---
 
