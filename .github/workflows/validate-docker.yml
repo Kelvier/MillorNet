@@ -1,0 +1,64 @@
+name: Validate Docker Compose
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/docker-compose.yml'
+      - '**/docker-compose*.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/docker-compose.yml'
+      - '**/docker-compose*.yml'
+
+jobs:
+  validate:
+    name: Validate docker-compose files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y docker-compose-plugin
+          docker compose version
+
+      - name: Validate server docker-compose
+        working-directory: server
+        run: |
+          echo "▶ Validando server/docker-compose.yml..."
+          docker compose config --quiet
+          echo "✔ server/docker-compose.yml válido"
+
+      - name: Validate DMZ docker-compose
+        working-directory: dmz
+        run: |
+          echo "▶ Validando dmz/docker-compose.yml..."
+          docker compose config --quiet
+          echo "✔ dmz/docker-compose.yml válido"
+
+      - name: Check for secrets exposed in compose files
+        run: |
+          echo "▶ Buscando posibles secretos hardcodeados..."
+          # Busca patrones de contraseñas en texto plano (no en variables de entorno)
+          if grep -rn --include="docker-compose*.yml" \
+            -E '(password|passwd|secret|token)\s*:\s*[^$\{][^\s]{4,}' .; then
+            echo "❌ Se encontraron posibles credenciales hardcodeadas."
+            echo "   Usa variables de entorno: PASSWORD=\${MY_PASSWORD}"
+            exit 1
+          fi
+          echo "✔ Sin credenciales hardcodeadas detectadas"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Resultado validación Docker Compose" >> $GITHUB_STEP_SUMMARY
+          echo "| Archivo | Estado |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          for f in $(find . -name "docker-compose*.yml" -not -path "./.git/*"); do
+            echo "| \`$f\` | ✅ Revisado |" >> $GITHUB_STEP_SUMMARY
+          done

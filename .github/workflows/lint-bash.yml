@@ -1,0 +1,78 @@
+name: Lint Bash Scripts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.sh'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.sh'
+
+jobs:
+  shellcheck:
+    name: ShellCheck lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          shellcheck --version
+
+      - name: Find all shell scripts
+        id: find_scripts
+        run: |
+          SCRIPTS=$(find . -name "*.sh" -not -path "./.git/*" | sort)
+          echo "Found scripts:"
+          echo "$SCRIPTS"
+          echo "scripts=$SCRIPTS" >> $GITHUB_OUTPUT
+
+      - name: Run ShellCheck
+        run: |
+          echo "▶ Ejecutando ShellCheck en todos los scripts .sh..."
+          ERRORS=0
+          find . -name "*.sh" -not -path "./.git/*" | while read -r script; do
+            echo ""
+            echo "── Analizando: $script"
+            if shellcheck --severity=warning --shell=bash "$script"; then
+              echo "  ✔ Sin problemas"
+            else
+              echo "  ❌ Problemas encontrados en $script"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          # Re-run para exit code correcto (el while en subshell no propaga ERRORS)
+          find . -name "*.sh" -not -path "./.git/*" -exec shellcheck --severity=warning --shell=bash {} +
+
+      - name: Check scripts are executable
+        run: |
+          echo "▶ Comprobando permisos de ejecución..."
+          MISSING=0
+          find . -name "*.sh" -not -path "./.git/*" | while read -r script; do
+            if [ ! -x "$script" ]; then
+              echo "  ⚠ Sin permiso de ejecución: $script  →  usa: chmod +x $script"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          echo "✔ Revisión de permisos completada"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Resultado ShellCheck" >> $GITHUB_STEP_SUMMARY
+          echo "| Script | Estado |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          find . -name "*.sh" -not -path "./.git/*" | sort | while read -r script; do
+            if shellcheck --severity=warning --shell=bash "$script" > /dev/null 2>&1; then
+              echo "| \`$script\` | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| \`$script\` | ❌ Errores |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
