@@ -282,7 +282,6 @@ MillorNet/
 │   └── backend/
 └── docs/
 
----
 
 ## 🛠️ Tecnologías utilizadas
 
