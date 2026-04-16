@@ -22,7 +22,7 @@ Todo está desplegado sobre **VirtualBox** usando **Ubuntu Server 24.04 LTS**.
 |
 ├── enp0s8 ──→ Red Empresa      (10.10.10.0/24)  — Servidor, herramientas
 ├── enp0s9 ──→ Red DMZ          (10.20.20.0/24)  — Web, Mail, FTP
-└── enp0s10 ──→ Red Laboratorio (10.30.30.0/24)  — Máquinas vulnerable
+└── enp0s10 ──→ Red Laboratorio (10.30.30.0/24)  — Máquinas vulnerables
 
 ### Política de Segmentación
 
@@ -281,7 +281,7 @@ MillorNet/
 │   ├── frontend/
 │   └── backend/
 └── docs/                       # Documentación técnica (PDFs)
----
+
 
 ## 🛠️ Tecnologías utilizadas
 
