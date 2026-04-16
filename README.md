@@ -252,37 +252,6 @@ cd ~/defectdojo && docker compose up -d
 
 ---
 
-## 📁 Estructura del Repositorio
-MillorNet/
-├── router/
-│   ├── firewall-millornet.sh
-│   ├── firewall-millornet.service
-│   ├── dhcpd.conf
-│   ├── named.conf.local
-│   ├── named.conf.options
-│   ├── netplan.yaml
-│   ├── wg0.conf
-│   ├── jail.local
-│   ├── ntopng.conf
-│   └── zones/
-├── server/
-│   ├── docker-compose.yml
-│   ├── traefik/
-│   ├── prometheus/
-│   └── certs/
-├── dmz/
-│   ├── docker-compose.yml
-│   └── nginx/
-├── lab/
-│   └── docker-compose.yml
-├── defectdojo/
-│   └── docker-compose.yml
-├── MillorNet-web/
-│   ├── frontend/
-│   └── backend/
-└── docs/
-
-
 ## 🛠️ Tecnologías utilizadas
 
 ![Ubuntu](https://img.shields.io/badge/Ubuntu_Server-24.04-E95420?style=flat&logo=ubuntu&logoColor=white)
