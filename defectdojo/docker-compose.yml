@@ -1,0 +1,116 @@
+services:
+  defectdojo-nginx:
+    image: defectdojo/defectdojo-nginx:latest
+    container_name: defectdojo-nginx
+    depends_on:
+      - defectdojo-uwsgi
+    environment:
+      - NGINX_METRICS_ENABLED=false
+    volumes:
+      - defectdojo-media:/usr/share/nginx/html/media
+    networks:
+      millornet-network:
+      defectdojo-internal:
+        aliases:
+          - nginx
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.defectdojo.rule=Host(`defectdojo.millornet.local`)"
+      - "traefik.http.routers.defectdojo.entrypoints=websecure"
+      - "traefik.http.routers.defectdojo.tls=true"
+      - "traefik.http.services.defectdojo.loadbalancer.server.port=8080"
+      - "traefik.docker.network=millornet-network"
+
+  defectdojo-uwsgi:
+    image: defectdojo/defectdojo-django:latest
+    container_name: defectdojo-uwsgi
+    depends_on:
+      - defectdojo-postgres
+      - defectdojo-redis
+    entrypoint: ["/wait-for-it.sh", "defectdojo-postgres:5432", "-t", "30", "--", "/entrypoint-uwsgi.sh"]
+    environment:
+      - DD_DEBUG=False
+      - DD_ALLOWED_HOSTS=defectdojo.millornet.local,localhost
+      - DD_DATABASE_URL=postgresql://defectdojo:defectdojo123@defectdojo-postgres:5432/defectdojo
+      - DD_CELERY_BROKER_URL=redis://defectdojo-redis:6379/0
+      - DD_SECRET_KEY=millornet-defectdojo-secret-key-2026
+      - DD_CREDENTIAL_AES_256_KEY=millornet-aes-key-32chars-2026!!
+      - DD_ADMIN_USER=admin
+      - DD_ADMIN_PASSWORD=alumnes
+      - DD_ADMIN_MAIL=ikerv2004@gmail.com
+      - DD_ADMIN_FIRST_NAME=Admin
+      - DD_ADMIN_LAST_NAME=Millornet
+    volumes:
+      - defectdojo-media:/app/media
+    networks:
+      defectdojo-internal:
+        aliases:
+          - uwsgi
+
+  defectdojo-celeryworker:
+    image: defectdojo/defectdojo-django:latest
+    container_name: defectdojo-celeryworker
+    depends_on:
+      - defectdojo-postgres
+      - defectdojo-redis
+    entrypoint: ["/wait-for-it.sh", "defectdojo-postgres:5432", "-t", "30", "--", "/entrypoint-celery-worker.sh"]
+    environment:
+      - DD_DATABASE_URL=postgresql://defectdojo:defectdojo123@defectdojo-postgres:5432/defectdojo
+      - DD_CELERY_BROKER_URL=redis://defectdojo-redis:6379/0
+      - DD_SECRET_KEY=millornet-defectdojo-secret-key-2026
+      - DD_CREDENTIAL_AES_256_KEY=millornet-aes-key-32chars-2026!!
+    volumes:
+      - defectdojo-media:/app/media
+    networks:
+      defectdojo-internal:
+        aliases:
+          - celeryworker
+
+  defectdojo-celerybeat:
+    image: defectdojo/defectdojo-django:latest
+    container_name: defectdojo-celerybeat
+    depends_on:
+      - defectdojo-postgres
+      - defectdojo-redis
+    entrypoint: ["/wait-for-it.sh", "defectdojo-postgres:5432", "-t", "30", "--", "/entrypoint-celery-beat.sh"]
+    environment:
+      - DD_DATABASE_URL=postgresql://defectdojo:defectdojo123@defectdojo-postgres:5432/defectdojo
+      - DD_CELERY_BROKER_URL=redis://defectdojo-redis:6379/0
+      - DD_SECRET_KEY=millornet-defectdojo-secret-key-2026
+      - DD_CREDENTIAL_AES_256_KEY=millornet-aes-key-32chars-2026!!
+    networks:
+      defectdojo-internal:
+        aliases:
+          - celerybeat
+
+  defectdojo-postgres:
+    image: postgres:16
+    container_name: defectdojo-postgres
+    environment:
+      - POSTGRES_DB=defectdojo
+      - POSTGRES_USER=defectdojo
+      - POSTGRES_PASSWORD=defectdojo123
+    volumes:
+      - defectdojo-postgres:/var/lib/postgresql/data
+    networks:
+      defectdojo-internal:
+        aliases:
+          - postgres
+
+  defectdojo-redis:
+    image: redis:7
+    container_name: defectdojo-redis
+    networks:
+      defectdojo-internal:
+        aliases:
+          - redis
+
+networks:
+  millornet-network:
+    external: true
+  defectdojo-internal:
+    internal: true
+
+volumes:
+  defectdojo-media:
+  defectdojo-postgres:
