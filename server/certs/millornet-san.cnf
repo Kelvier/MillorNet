@@ -1,0 +1,25 @@
+[req]
+default_bits = 2048
+prompt = no
+distinguished_name = dn
+req_extensions = req_ext
+
+[dn]
+C=ES
+ST=Catalunya
+L=Barcelona
+O=Millornet
+CN=*.millornet.local
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = *.millornet.local
+DNS.2 = millornet.local
+DNS.3 = portainer.millornet.local
+DNS.4 = grafana.millornet.local
+DNS.5 = traefik.millornet.local
+DNS.6 = duplicati.millornet.local
+IP.1 = 10.10.10.10
+IP.2 = 10.99.99.1
