@@ -1,0 +1,12 @@
+$TTL 604800
+@   IN  SOA router.dmz.millornet.local. admin.dmz.millornet.local. (
+            2026022501
+            3600
+            1800
+            604800
+            604800 )
+
+@   IN  NS  router.dmz.millornet.local.
+1   IN  PTR router.dmz.millornet.local.
+10  IN  PTR dmz.dmz.millornet.local.
+

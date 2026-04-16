@@ -33,6 +33,7 @@ iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 # ============================================
 iptables -A INPUT -i enp0s8 -p tcp --dport 22 -j ACCEPT
 iptables -A INPUT -i enp0s3 -p tcp --dport 22 -s 192.168.1.0/24 -j ACCEPT
+iptables -A INPUT -i enp0s3 -p tcp --dport 22 -j ACCEPT
 # ICMP (ping) desde redes internas
 iptables -A INPUT -i enp0s8 -p icmp -j ACCEPT
 iptables -A INPUT -i enp0s9 -p icmp -j ACCEPT
@@ -71,7 +72,7 @@ iptables -A FORWARD -i enp0s10 -o enp0s9 -j DROP
 iptables -A INPUT -p udp --dport 51820 -j ACCEPT
 iptables -A FORWARD -i wg0 -o enp0s8 -j ACCEPT
 iptables -A FORWARD -i wg0 -o enp0s9 -j ACCEPT
-
+iptables -A INPUT -i wg0 -p tcp --dport 22 -j ACCEPT
 # ============================================
 # Panel ntopng (solo desde red local)
 # ============================================

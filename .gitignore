@@ -1,0 +1,24 @@
+# Claves privadas
+*.key
+*.pem
+*.p12
+*.csr
+*.srl
+
+# Variables de entorno con credenciales
+.env
+*.env
+
+# Node
+node_modules/
+package-lock.json
+
+# Datos de servicios
+portainer/
+duplicati/
+backups/
+
+# Temporales
+*.tar.gz
+*.log
+*.backup

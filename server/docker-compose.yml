@@ -1,5 +1,4 @@
 services:
-
   traefik:
     image: traefik:latest
     container_name: millornet-traefik
@@ -11,8 +10,15 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik:/etc/traefik
+      - ./certs:/certs:ro
     networks:
       - millornet-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.millornet.local`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.service=api@internal"
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -25,6 +31,12 @@ services:
       - ./portainer:/data
     networks:
       - millornet-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.millornet.local`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
 
   duplicati:
     image: linuxserver/duplicati:latest
@@ -44,6 +56,12 @@ services:
       - ./millornet:/source
     networks:
       - millornet-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.duplicati.rule=Host(`duplicati.millornet.local`)"
+      - "traefik.http.routers.duplicati.entrypoints=websecure"
+      - "traefik.http.routers.duplicati.tls=true"
+      - "traefik.http.services.duplicati.loadbalancer.server.port=8200"
 
   prometheus:
     image: prom/prometheus:latest
@@ -60,6 +78,12 @@ services:
       - '--web.enable-lifecycle'
     networks:
       - millornet-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.millornet.local`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   grafana:
     image: grafana/grafana:latest
@@ -69,12 +93,20 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=alumnes
+      - GF_SECURITY_ADMIN_PASSWORD=Millornet2026!
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_TOTP_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=true
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
       - millornet-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.millornet.local`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
   node-exporter:
     image: prom/node-exporter:latest

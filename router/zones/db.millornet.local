@@ -1,0 +1,18 @@
+$TTL 604800
+@   IN  SOA router.millornet.local. admin.millornet.local. (
+            2026040901
+            3600
+            1800
+            604800
+            604800 )
+
+@           IN  NS      router.millornet.local.
+router      IN  A       10.10.10.1
+server      IN  A       10.10.10.10
+; Servicios Docker (Traefik)
+portainer       IN      A       10.10.10.10
+grafana         IN      A       10.10.10.10
+traefik         IN      A       10.10.10.10
+duplicati       IN      A       10.10.10.10
+prometheus      IN      A       10.10.10.10
+defectdojo      IN      A       10.10.10.10
