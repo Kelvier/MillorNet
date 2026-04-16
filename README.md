@@ -13,16 +13,15 @@ Todo está desplegado sobre **VirtualBox** usando **Ubuntu Server 24.04 LTS**.
 ---
 
 ## 🗺️ Arquitectura de Red
-
 [Internet]
 |
 [Adaptador Puente] — enp0s3 (WAN 192.168.1.0/24)
 |
 [millornet-router] — Ubuntu Server
 |
-├── enp0s8 ──→ Red Empresa      (10.10.10.0/24)  — Servidor, herramientas
-├── enp0s9 ──→ Red DMZ          (10.20.20.0/24)  — Web, Mail, FTP
-└── enp0s10 ──→ Red Laboratorio (10.30.30.0/24)  — Máquinas vulnerables
+├── enp0s8  ──→ Red Empresa      (10.10.10.0/24)  — Servidor, herramientas
+├── enp0s9  ──→ Red DMZ          (10.20.20.0/24)  — Web, Mail, FTP
+└── enp0s10 ──→ Red Laboratorio  (10.30.30.0/24)  — Máquinas vulnerables
 
 ### Política de Segmentación
 
@@ -98,10 +97,10 @@ Todo está desplegado sobre **VirtualBox** usando **Ubuntu Server 24.04 LTS**.
 
 | Contenedor | Imagen | Puerto | Descripción |
 |---|---|---|---|
-| lab-dvwa | vulnerables/web-dvwa | 8080 | Damn Vulnerable Web App |
-| lab-webgoat | webgoat/webgoat | 8081 | OWASP WebGoat |
-| lab-juiceshop | bkimminich/juice-shop | 8082 | OWASP Juice Shop |
-| lab-mutillidae | citizenstig/nowasp | 8083 | Mutillidae |
+| lab-dvwa | vulnerables/web-dvwa | 8080 | Damn Vulnerable Web App — SQLi, XSS, RCE |
+| lab-webgoat | webgoat/webgoat | 8081 | OWASP WebGoat — OWASP Top 10 |
+| lab-juiceshop | bkimminich/juice-shop | 8082 | OWASP Juice Shop — CTF |
+| lab-mutillidae | citizenstig/nowasp | 8083 | Mutillidae — app altamente vulnerable |
 
 ---
 
@@ -114,8 +113,8 @@ Plataforma de gestión de vulnerabilidades accesible en `https://defectdojo.mill
 | defectdojo-nginx | Proxy interno y ficheros estáticos |
 | defectdojo-uwsgi | Backend Django principal |
 | defectdojo-celeryworker | Tareas asíncronas |
-| defectdojo-postgres | Base de datos |
-| defectdojo-redis | Broker de mensajes |
+| defectdojo-postgres | Base de datos PostgreSQL |
+| defectdojo-redis | Broker de mensajes Celery |
 
 ---
 
@@ -227,7 +226,7 @@ cd ~/defectdojo && docker compose up -d
 
 ### Laboratorio (con VPN)
 
-| App | URL |
+| Aplicación | URL |
 |---|---|
 | DVWA | http://10.30.30.10:8080 |
 | WebGoat | http://10.30.30.10:8081/WebGoat |
@@ -254,34 +253,36 @@ cd ~/defectdojo && docker compose up -d
 ---
 
 ## 📁 Estructura del Repositorio
-
 MillorNet/
-├── router/                     # Configuraciones del router
+├── router/
 │   ├── firewall-millornet.sh
+│   ├── firewall-millornet.service
 │   ├── dhcpd.conf
-│   ├── named.conf.local / named.conf.options
+│   ├── named.conf.local
+│   ├── named.conf.options
 │   ├── netplan.yaml
 │   ├── wg0.conf
 │   ├── jail.local
 │   ├── ntopng.conf
 │   └── zones/
-├── server/                     # Servidor principal
+├── server/
 │   ├── docker-compose.yml
 │   ├── traefik/
 │   ├── prometheus/
 │   └── certs/
-├── dmz/                        # Zona DMZ
+├── dmz/
 │   ├── docker-compose.yml
 │   └── nginx/
-├── lab/                        # Laboratorio de pentesting
+├── lab/
 │   └── docker-compose.yml
-├── defectdojo/                 # Gestión de vulnerabilidades
+├── defectdojo/
 │   └── docker-compose.yml
-├── MillorNet-web/              # Aplicación web
+├── MillorNet-web/
 │   ├── frontend/
 │   └── backend/
-└── docs/                       # Documentación técnica (PDFs)
+└── docs/
 
+---
 
 ## 🛠️ Tecnologías utilizadas
 
@@ -313,7 +314,7 @@ MillorNet/
 
 ## 👤 Autores
 
-**Iker VP** — Proyecto Final ASIX 2025/2026
+**Iker VP** — Proyecto Final ASIX 2025/2026  
 **Enric TG** — Proyecto Final ASIX 2025/2026
 
 ---
