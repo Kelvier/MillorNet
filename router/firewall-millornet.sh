@@ -88,4 +88,9 @@ iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
 iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
 iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
 
+
+# Bloquear DNS desde red laboratorio
+iptables -I INPUT -i enp0s10 -p udp --dport 53 -j DROP
+iptables -I INPUT -i enp0s10 -p tcp --dport 53 -j DROP
+
 echo " Firewall Millornet aplicado correctamente"
