@@ -11,6 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik:/etc/traefik
       - ./certs:/certs:ro
+
     networks:
       - millornet-network
     labels:
@@ -19,6 +20,7 @@ services:
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=admin-auth@file"
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -84,7 +86,7 @@ services:
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls=true"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-
+      - "traefik.http.routers.prometheus.middlewares=admin-auth@file"
   grafana:
     image: grafana/grafana:latest
     container_name: millornet-grafana

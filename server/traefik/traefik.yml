@@ -1,6 +1,6 @@
 api:
   dashboard: true
-  insecure: true
+  insecure: false
 
 entryPoints:
   web:
@@ -20,8 +20,8 @@ providers:
     exposedByDefault: false
     network: millornet-network
   file:
-    filename: /etc/traefik/tls.yml
+    directory: /etc/traefik/
     watch: true
 
 log:
-  level: DEBUG
+  level: INFO
