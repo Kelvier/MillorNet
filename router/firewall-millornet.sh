@@ -93,4 +93,9 @@ iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
 iptables -I INPUT -i enp0s10 -p udp --dport 53 -j DROP
 iptables -I INPUT -i enp0s10 -p tcp --dport 53 -j DROP
 
+# Wazuh — permitir DMZ registrar agentes en el servidor
+iptables -I FORWARD -i enp0s9 -o enp0s8 -d 10.10.10.10 -p tcp --dport 1515 -j ACCEPT
+iptables -I FORWARD -i enp0s9 -o enp0s8 -d 10.10.10.10 -p tcp --dport 1514 -j ACCEPT
+iptables -I FORWARD -i enp0s9 -o enp0s8 -d 10.10.10.10 -p udp --dport 1514 -j ACCEPT
+
 echo " Firewall Millornet aplicado correctamente"
