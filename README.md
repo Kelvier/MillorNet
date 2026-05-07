@@ -6,22 +6,25 @@
 
 ## 📋 Descripción
 
-**Millornet** es una infraestructura empresarial simulada de ciberseguridad y pentesting. El proyecto replica un entorno real con segmentación de redes, servicios en contenedores Docker, monitorización, backups, VPN, laboratorio de pentesting y políticas de seguridad.
+**Millornet** es una infraestructura empresarial simulada de ciberseguridad y pentesting. El proyecto replica un entorno real con segmentación de redes, servicios en contenedores Docker, monitorización, backups, VPN, laboratorio de pentesting, SIEM centralizado y gestión profesional de vulnerabilidades.
 
 Todo está desplegado sobre **VirtualBox** usando **Ubuntu Server 24.04 LTS**.
 
 ---
 
 ## 🗺️ Arquitectura de Red
+
+```
 [Internet]
-|
+    |
 [Adaptador Puente] — enp0s3 (WAN 192.168.1.0/24)
-|
+    |
 [millornet-router] — Ubuntu Server
-|
-├── enp0s8  ──→ Red Empresa      (10.10.10.0/24)  — Servidor, herramientas
-├── enp0s9  ──→ Red DMZ          (10.20.20.0/24)  — Web, Mail, FTP
-└── enp0s10 ──→ Red Laboratorio  (10.30.30.0/24)  — Máquinas vulnerables
+    |
+    ├── enp0s8  ──→ Red Empresa      (10.10.10.0/24)  — Servidor, herramientas
+    ├── enp0s9  ──→ Red DMZ          (10.20.20.0/24)  — Web, Mail, FTP
+    └── enp0s10 ──→ Red Laboratorio  (10.30.30.0/24)  — Máquinas vulnerables
+```
 
 ### Política de Segmentación
 
@@ -57,7 +60,7 @@ Todo está desplegado sobre **VirtualBox** usando **Ubuntu Server 24.04 LTS**.
 | NAT / Enrutamiento | iptables | Salida a internet para redes internas |
 | DHCP | isc-dhcp-server | Asignación automática de IPs |
 | DNS | Bind9 | Zonas internas + forwarding externo |
-| Firewall | iptables | Segmentación y control de tráfico |
+| Firewall | iptables (DROP por defecto) | Segmentación y control de tráfico |
 | VPN | WireGuard | Acceso remoto seguro (10.99.99.0/24) |
 | Monitorización | ntopng | Análisis de tráfico en tiempo real |
 | Anti fuerza bruta | Fail2ban | Bloqueo automático de atacantes SSH |
@@ -66,6 +69,10 @@ Todo está desplegado sobre **VirtualBox** usando **Ubuntu Server 24.04 LTS**.
 - `millornet.local` → Red empresa (10.10.10.0/24)
 - `dmz.millornet.local` → Red DMZ (10.20.20.0/24)
 - `lab.millornet.local` → Red laboratorio (10.30.30.0/24)
+
+**Peers VPN WireGuard:**
+- `10.99.99.2/32` → Administrador (Iker)
+- `10.99.99.3/32` → Cliente Indústries Stark (acceso restringido)
 
 ---
 
@@ -118,6 +125,26 @@ Plataforma de gestión de vulnerabilidades accesible en `https://defectdojo.mill
 
 ---
 
+### 🔍 Wazuh SIEM (millornet-server)
+
+Sistema centralizado de monitorización de seguridad en tiempo real. 3 agentes activos.
+
+| Contenedor | Imagen | Puerto | Función |
+|---|---|---|---|
+| wazuh.manager | wazuh/wazuh-manager:4.7.5 | 1514, 1515, 55000 | Servidor central de alertas |
+| wazuh.indexer | wazuh/wazuh-indexer:4.7.5 | 9200 | Base de datos OpenSearch |
+| wazuh.dashboard | wazuh/wazuh-dashboard:4.7.5 | 4443 | Interfaz web |
+
+**Agentes activos:**
+
+| ID | Máquina | IP | Estado |
+|---|---|---|---|
+| 001 | millornet-router | 10.10.10.1 | ✅ Active |
+| 002 | millornet-server | 10.10.10.10 | ✅ Active |
+| 003 | millornet-dmz | 10.20.20.10 | ✅ Active |
+
+---
+
 ## 🔐 Seguridad Implementada
 
 ### SSL/TLS
@@ -125,14 +152,18 @@ Plataforma de gestión de vulnerabilidades accesible en `https://defectdojo.mill
 - Certificado wildcard `*.millornet.local` firmado por la CA (válido 825 días)
 - Traefik como terminador TLS centralizado
 - Redirección automática HTTP → HTTPS en todos los servicios
+- Script cron de renovación automática 30 días antes de expirar
 
-| Servicio | HTTPS | 2FA |
-|---|---|---|
-| Portainer | ✅ | ✅ TOTP |
-| Grafana | ✅ | ✅ TOTP |
-| Traefik Dashboard | ✅ | ❌ |
-| Duplicati | ✅ | ❌ |
-| DefectDojo | ✅ | ❌ |
+### Autenticación
+
+| Servicio | HTTPS | 2FA | Auth adicional |
+|---|---|---|---|
+| Portainer | ✅ | ✅ TOTP | — |
+| Grafana | ✅ | ✅ TOTP | — |
+| Traefik Dashboard | ✅ | ❌ | ✅ BasicAuth |
+| Prometheus | ✅ | ❌ | ✅ BasicAuth |
+| Duplicati | ✅ | ❌ | Contraseña |
+| DefectDojo | ✅ | ❌ | Usuario/Pass |
 
 ### Hardening (Lynis)
 
@@ -141,13 +172,14 @@ Plataforma de gestión de vulnerabilidades accesible en `https://defectdojo.mill
 | millornet-router | 62/100 | 71/100 | +9 pts |
 | millornet-server | 59/100 | 69/100 | +10 pts |
 
-### Wazuh SIEM
+### DefectDojo — Findings Corregidos
 
-| Agente | Máquina | IP | Estado |
+| ID | Vulnerabilidad | Severidad | Estado |
 |---|---|---|---|
-| 001 | millornet-router | 10.10.10.1 | ✅ Activo |
-| 002 | millornet-server | 10.10.10.10 | ✅ Activo |
-| 003 | millornet-dmz | 10.20.20.10 | ✅ Activo |
+| F-001 | Credenciales expuestas en README público de GitHub | High (7.6) | ✅ Cerrado |
+| F-002 | Traefik Dashboard y Prometheus sin autenticación | Medium (4.3) | ✅ Cerrado |
+| F-003 | DNS del router accesible desde red de laboratorio | Medium (5.4) | ✅ Cerrado |
+| F-004 | Certificados TLS sin rotación automática | Low (3.1) | ✅ Cerrado |
 
 ---
 
@@ -157,45 +189,42 @@ Plataforma de gestión de vulnerabilidades accesible en `https://defectdojo.mill
 |---|---|---|---|---|
 | ikervp | Todas | ✅ | ✅ | Administrador principal |
 | enrinctg | Router/Servidor | ✅ | ✅ | Administrador secundario |
-| dev-millornet | Servidor | ❌ | ✅ | Gestiona contenedores |
+| dev-millornet | Servidor | ❌ | ✅ | Gestiona contenedores Docker |
 | analista-millornet | Servidor | ❌ | ❌ | Solo lectura de logs |
 | webmaster-millornet | DMZ | ❌ | ✅ | Gestiona web Nginx |
 | invitado-millornet | Todas | ❌ | ❌ | Shell restringida (rbash) |
+| stark-viewer | Router/Server/DMZ | ❌ | ❌ | Cliente — rbash + PATH restringido |
 
 ---
 
 ## 🚀 Cómo levantar la infraestructura
 
-### 1. Requisitos
-- VirtualBox 7.x
-- 4 VMs con Ubuntu Server 24.04 LTS
-- Mínimo 8GB RAM total recomendado
+### Script automático (recomendado)
 
-### 2. Router
 ```bash
-sudo netplan apply
-sudo systemctl start isc-dhcp-server bind9 wg-quick@wg0 fail2ban ntopng
-sudo bash /etc/firewall-millornet.sh
+bash ~/start-millornet.sh
 ```
 
-### 3. Servidor principal
+### Manual
+
 ```bash
+# 1. Stack principal del servidor
 cd ~/millornet && docker compose up -d
-```
 
-### 4. DMZ
-```bash
-cd ~/millornet-dmz && docker compose up -d
-```
+# 2. Wazuh SIEM
+cd ~/wazuh-docker/single-node && docker compose up -d
 
-### 5. Laboratorio
-```bash
-cd ~/millornet-lab && docker compose up -d
-```
-
-### 6. DefectDojo
-```bash
+# 3. DefectDojo
 cd ~/defectdojo && docker compose up -d
+
+# 4. Laboratorio
+ssh ikervp@10.30.30.10 "cd ~/millornet-lab && docker compose up -d"
+
+# 5. DMZ
+ssh ikervp@10.20.20.10 "cd ~/millornet-dmz && docker compose up -d"
+
+# Router (si no arrancó automático)
+ssh ikervp@10.10.10.1 "sudo bash /etc/firewall-millornet.sh && sudo systemctl start wg-quick@wg0 bind9 isc-dhcp-server fail2ban ntopng"
 ```
 
 ---
@@ -213,25 +242,26 @@ cd ~/defectdojo && docker compose up -d
 
 ### Paneles Web (con VPN activa)
 
-| Panel | URL |
-|---|---|
-| Portainer | https://portainer.millornet.local |
-| Grafana | https://grafana.millornet.local |
-| Traefik | https://traefik.millornet.local |
-| Duplicati | https://duplicati.millornet.local |
-| Prometheus | https://prometheus.millornet.local |
-| DefectDojo | https://defectdojo.millornet.local |
-| ntopng | http://10.10.10.1:3000 |
-| Web DMZ | http://www.dmz.millornet.local |
+| Panel | URL | Auth |
+|---|---|---|
+| Portainer | https://portainer.millornet.local | Ver `.env` + 2FA |
+| Grafana | https://grafana.millornet.local | Ver `.env` + 2FA |
+| Traefik | https://traefik.millornet.local | BasicAuth |
+| Duplicati | https://duplicati.millornet.local | Ver `.env` |
+| Prometheus | https://prometheus.millornet.local | BasicAuth |
+| DefectDojo | https://defectdojo.millornet.local | Ver `.env` |
+| Wazuh SIEM | https://10.10.10.10:4443 | Ver `.env` |
+| ntopng | http://10.10.10.1:3000 | Ver `.env` |
+| Web DMZ | http://www.dmz.millornet.local | Pública |
 
 ### Laboratorio (con VPN)
 
-| Aplicación | URL |
-|---|---|
-| DVWA | http://10.30.30.10:8080 |
-| WebGoat | http://10.30.30.10:8081/WebGoat |
-| Juice Shop | http://10.30.30.10:8082 |
-| Mutillidae | http://10.30.30.10:8083 |
+| Aplicación | URL | Credenciales por defecto |
+|---|---|---|
+| DVWA | http://10.30.30.10:8080 | admin / password |
+| WebGoat | http://10.30.30.10:8081/WebGoat | guest / guest |
+| Juice Shop | http://10.30.30.10:8082 | Sin login inicial |
+| Mutillidae | http://10.30.30.10:8083 | admin / adminpass |
 
 ---
 
@@ -252,6 +282,49 @@ cd ~/defectdojo && docker compose up -d
 
 ---
 
+## 📁 Estructura del Repositorio
+
+```
+MillorNet/
+├── router/                       # Configuraciones del router
+│   ├── firewall-millornet.sh     # Script firewall iptables
+│   ├── firewall-millornet.service
+│   ├── dhcpd.conf                # Servidor DHCP
+│   ├── named.conf.local          # Zonas DNS Bind9
+│   ├── named.conf.options        # Opciones DNS
+│   ├── netplan.yaml              # Configuración interfaces
+│   ├── wg0.conf                  # WireGuard VPN (2 peers)
+│   ├── jail.local                # Fail2ban
+│   ├── ntopng.conf               # Monitor tráfico
+│   └── zones/                    # Ficheros de zona DNS
+├── server/                       # Servidor principal
+│   ├── docker-compose.yml        # Stack Docker completo
+│   ├── wazuh-docker-compose.yml  # Stack Wazuh SIEM
+│   ├── traefik/                  # Proxy inverso + TLS + BasicAuth
+│   ├── prometheus/               # Métricas
+│   └── certs/                    # Certificados SSL (.crt únicamente)
+├── dmz/                          # Zona DMZ
+│   ├── docker-compose.yml
+│   └── nginx/
+├── lab/                          # Laboratorio de pentesting
+│   └── docker-compose.yml
+├── defectdojo/                   # Gestión de vulnerabilidades
+│   └── docker-compose.yml
+├── MillorNet-web/                # Aplicación web del proyecto
+│   ├── frontend/
+│   └── backend/
+├── start-millornet.sh            # Script arranque automático
+└── docs/                         # Documentación técnica (PDFs)
+    ├── Millornet-Memoria-Tecnica.pdf
+    ├── Millornet-Documentacio.pdf
+    ├── Millornet-Auditoria-Seguretat.pdf
+    ├── Millornet-Informe-Pentesting.pdf
+    ├── Millornet-SSL-2FA.pdf
+    └── Millornet-Wazuh-SIEM.pdf
+```
+
+---
+
 ## 🛠️ Tecnologías utilizadas
 
 ![Ubuntu](https://img.shields.io/badge/Ubuntu_Server-24.04-E95420?style=flat&logo=ubuntu&logoColor=white)
@@ -261,22 +334,9 @@ cd ~/defectdojo && docker compose up -d
 ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat&logo=prometheus&logoColor=white)
 ![WireGuard](https://img.shields.io/badge/WireGuard-VPN-88171A?style=flat&logo=wireguard&logoColor=white)
 ![Traefik](https://img.shields.io/badge/Traefik-24A1C1?style=flat&logo=traefikproxy&logoColor=white)
-![Wazuh](https://img.shields.io/badge/Wazuh-SIEM-005571?style=flat)
+![Wazuh](https://img.shields.io/badge/Wazuh-SIEM_4.7.5-005571?style=flat)
 ![DefectDojo](https://img.shields.io/badge/DefectDojo-v2.57-orange?style=flat)
 ![Metasploit](https://img.shields.io/badge/Metasploit-6.4-2596CD?style=flat)
-
----
-
-## 🔮 Trabajo Futuro
-
-- [ ] Servidor Wazuh centralizado para visualización de alertas SIEM
-- [ ] Autenticación en Traefik Dashboard
-- [ ] Restricción DNS desde red de laboratorio
-- [ ] Script cron para renovación automática de certificados TLS
-- [ ] ELK Stack para logs centralizados
-- [ ] Alertas automáticas en Grafana
-- [ ] Burp Suite y Wireshark en el servidor
-- [ ] DDNS para acceso VPN con IP pública dinámica
 
 ---
 
