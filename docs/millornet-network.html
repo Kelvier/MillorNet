@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Millornet — Infraestructura de Xarxa</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #050a0f;
+    --grid: rgba(0,255,180,0.04);
+    --accent: #00ffb4;
+    --accent2: #00b4ff;
+    --accent3: #ff6b35;
+    --accent4: #ff3b6b;
+    --wan: #ff6b35;
+    --empresa: #00ffb4;
+    --dmz: #00b4ff;
+    --lab: #ff3b6b;
+    --vpn: #b46bff;
+    --text: #c8e6d0;
+    --dim: #4a6b5a;
+    --card: rgba(0,255,180,0.05);
+    --border: rgba(0,255,180,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,255,180,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--dim);
+    letter-spacing: 2px;
+  }
+
+  /* Network diagram */
+  .network {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 40px;
+  }
+
+  /* Internet node */
+  .internet-node {
+    background: rgba(255,107,53,0.1);
+    border: 1px solid rgba(255,107,53,0.4);
+    border-radius: 12px;
+    padding: 14px 30px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .internet-node:hover {
+    background: rgba(255,107,53,0.2);
+    border-color: var(--wan);
+    box-shadow: 0 0 20px rgba(255,107,53,0.2);
+    transform: translateY(-2px);
+  }
+
+  .internet-node .node-icon { font-size: 28px; margin-bottom: 4px; }
+  .internet-node .node-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--wan);
+    letter-spacing: 2px;
+  }
+  .internet-node .node-ip {
+    font-size: 11px;
+    color: rgba(255,107,53,0.6);
+    margin-top: 2px;
+  }
+
+  /* Connector lines */
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 0;
+  }
+
+  .connector-line {
+    width: 2px;
+    height: 20px;
+    position: relative;
+  }
+
+  .connector-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--wan), var(--accent));
+    animation: flow 2s linear infinite;
+  }
+
+  .connector-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    background: rgba(0,255,180,0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(0,255,180,0.1);
+  }
+
+  @keyframes flow {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+  }
+
+  /* Router */
+  .router-node {
+    background: linear-gradient(135deg, rgba(0,255,180,0.1), rgba(0,180,255,0.05));
+    border: 1px solid rgba(0,255,180,0.4);
+    border-radius: 16px;
+    padding: 20px 40px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 280px;
+  }
+
+  .router-node:hover {
+    background: linear-gradient(135deg, rgba(0,255,180,0.2), rgba(0,180,255,0.1));
+    border-color: var(--accent);
+    box-shadow: 0 0 30px rgba(0,255,180,0.15), inset 0 0 20px rgba(0,255,180,0.05);
+    transform: translateY(-2px);
+  }
+
+  .router-badge {
+    position: absolute;
+    top: -10px; right: 16px;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .router-node .node-icon { font-size: 32px; margin-bottom: 6px; }
+  .router-node .node-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .router-node .node-ip {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: rgba(0,255,180,0.5);
+  }
+
+  .services-mini {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .service-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+
+  .tag-green { background: rgba(0,255,180,0.1); color: var(--accent); border: 1px solid rgba(0,255,180,0.2); }
+  .tag-blue { background: rgba(0,180,255,0.1); color: var(--accent2); border: 1px solid rgba(0,180,255,0.2); }
+  .tag-purple { background: rgba(180,107,255,0.1); color: var(--vpn); border: 1px solid rgba(180,107,255,0.2); }
+  .tag-orange { background: rgba(255,107,53,0.1); color: var(--wan); border: 1px solid rgba(255,107,53,0.2); }
+  .tag-red { background: rgba(255,59,107,0.1); color: var(--accent4); border: 1px solid rgba(255,59,107,0.2); }
+
+  /* Networks row */
+  .networks-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin-top: 8px;
+  }
+
+  /* Branch connectors */
+  .branch-connector {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1100px;
+    height: 60px;
+    position: relative;
+    margin: 4px 0;
+  }
+
+  .branch-svg {
+    width: 100%;
+    height: 60px;
+  }
+
+  /* Network zones */
+  .zone {
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .zone:hover { transform: translateY(-3px); }
+
+  .zone-empresa {
+    background: rgba(0,255,180,0.05);
+    border: 1px solid rgba(0,255,180,0.2);
+  }
+  .zone-empresa:hover {
+    background: rgba(0,255,180,0.1);
+    border-color: var(--empresa);
+    box-shadow: 0 0 25px rgba(0,255,180,0.1);
+  }
+
+  .zone-dmz {
+    background: rgba(0,180,255,0.05);
+    border: 1px solid rgba(0,180,255,0.2);
+  }
+  .zone-dmz:hover {
+    background: rgba(0,180,255,0.1);
+    border-color: var(--dmz);
+    box-shadow: 0 0 25px rgba(0,180,255,0.1);
+  }
+
+  .zone-lab {
+    background: rgba(255,59,107,0.05);
+    border: 1px solid rgba(255,59,107,0.2);
+  }
+  .zone-lab:hover {
+    background: rgba(255,59,107,0.1);
+    border-color: var(--lab);
+    box-shadow: 0 0 25px rgba(255,59,107,0.1);
+  }
+
+  .zone-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .zone-icon { font-size: 22px; }
+
+  .zone-title {
+    flex: 1;
+  }
+
+  .zone-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .zone-empresa .zone-name { color: var(--empresa); }
+  .zone-dmz .zone-name { color: var(--dmz); }
+  .zone-lab .zone-name { color: var(--lab); }
+
+  .zone-subnet {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 2px;
+  }
+
+  .zone-status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .status-active { background: rgba(0,255,180,0.15); color: var(--accent); }
+  .status-isolated { background: rgba(255,59,107,0.15); color: var(--lab); }
+  .status-exposed { background: rgba(0,180,255,0.15); color: var(--dmz); }
+
+  /* VM card */
+  .vm-card {
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.2s ease;
+  }
+
+  .vm-card:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  .vm-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .vm-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .dot-green { background: var(--empresa); box-shadow: 0 0 6px var(--empresa); }
+  .dot-blue { background: var(--dmz); box-shadow: 0 0 6px var(--dmz); }
+  .dot-red { background: var(--lab); box-shadow: 0 0 6px var(--lab); }
+  .dot-purple { background: var(--vpn); box-shadow: 0 0 6px var(--vpn); }
+
+  .vm-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  .vm-ip {
+    margin-left: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+  }
+
+  .vm-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* Policy table */
+  .policy-section {
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .policy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .policy-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .policy-icon { font-size: 18px; }
+
+  .policy-route {
+    flex: 1;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  .policy-arrow { color: var(--dim); margin: 0 4px; }
+
+  .policy-status { font-size: 14px; }
+
+  /* Services grid */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .service-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .service-card:hover {
+    background: rgba(0,255,180,0.1);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,255,180,0.1);
+  }
+
+  .service-card .s-icon { font-size: 24px; margin-bottom: 8px; }
+  .service-card .s-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .service-card .s-url {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--dim);
+    word-break: break-all;
+  }
+  .service-card .s-badge {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* VPN section */
+  .vpn-section {
+    background: rgba(180,107,255,0.05);
+    border: 1px solid rgba(180,107,255,0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+
+  .vpn-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .vpn-icon { font-size: 28px; }
+  .vpn-title { font-size: 16px; font-weight: 700; color: var(--vpn); }
+  .vpn-subnet { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--dim); }
+
+  .vpn-peers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .peer-card {
+    background: rgba(180,107,255,0.08);
+    border: 1px solid rgba(180,107,255,0.15);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .peer-icon { font-size: 20px; }
+  .peer-name { font-size: 12px; font-weight: 600; color: #fff; }
+  .peer-ip { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--vpn); }
+
+  /* Security badges */
+  .security-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .sec-badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .sec-badge .sec-icon { font-size: 22px; margin-bottom: 6px; }
+  .sec-badge .sec-label { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .sec-badge .sec-value { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 2px;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: fixed;
+    background: rgba(5,10,15,0.95);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    max-width: 260px;
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 0 20px rgba(0,255,180,0.1);
+  }
+
+  .tooltip.show { display: block; }
+  .tooltip-title { font-weight: 700; color: var(--accent); margin-bottom: 6px; font-size: 13px; }
+  .tooltip-item { color: var(--text); margin-bottom: 3px; font-size: 11px; }
+  .tooltip-item span { color: var(--dim); }
+
+  /* Animated scan line */
+  .scanline {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scan 8s linear infinite;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  @keyframes scan {
+    0% { top: 0; }
+    100% { top: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-title" id="tt-title"></div>
+  <div id="tt-content"></div>
+</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">// MILLORNET CYBERSECURITY //</div>
+    <h1>Infraestructura <span>de Xarxa</span></h1>
+    <div class="subtitle">ASIX 2025/2026 · IKER VP · ENRIC TG · v1.0</div>
+  </header>
+
+  <!-- Network Diagram -->
+  <div class="network">
+
+    <!-- Internet -->
+    <div class="internet-node" 
+      data-title="Internet / WAN"
+      data-info="IP Pública: 176.84.41.5<br>Interfície: enp0s3<br>Protocol: DHCP Bridge">
+      <div class="node-icon">🌐</div>
+      <div class="node-name">INTERNET / WAN</div>
+      <div class="node-ip">192.168.1.0/24 · 176.84.41.5</div>
+    </div>
+
+    <!-- Connector Internet → Router -->
+    <div class="connector">
+      <div class="connector-line" style="background: linear-gradient(var(--wan), var(--accent));"></div>
+      <div class="connector-label">enp0s3 · Adaptador Pont</div>
+      <div class="connector-line"></div>
+    </div>
+
+    <!-- Router -->
+    <div class="router-node"
+      data-title="millornet-router"
+      data-info="IP: 10.10.10.1<br>RAM: 2GB<br>OS: Ubuntu Server 24.04<br>Serveis: NAT, DHCP, DNS, Firewall, WireGuard, Fail2ban, ntopng">
+      <div class="router-badge">CORE</div>
+      <div class="node-icon">🛡️</div>
+      <div class="node-name">millornet-router</div>
+      <div class="node-ip">10.10.10.1 · 192.168.1.x</div>
+      <div class="services-mini">
+        <span class="service-tag tag-orange">NAT</span>
+        <span class="service-tag tag-green">DNS</span>
+        <span class="service-tag tag-green">DHCP</span>
+        <span class="service-tag tag-red">iptables</span>
+        <span class="service-tag tag-purple">WireGuard</span>
+        <span class="service-tag tag-blue">Fail2ban</span>
+        <span class="service-tag tag-blue">ntopng</span>
+      </div>
+    </div>
+
+    <!-- Branch SVG -->
+    <div class="branch-connector">
+      <svg class="branch-svg" viewBox="0 0 1000 60" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#ff3b6b;stop-opacity:0.6"/>
+            <stop offset="50%" style="stop-color:#00ffb4;stop-opacity:0.8"/>
+            <stop offset="100%" style="stop-color:#00b4ff;stop-opacity:0.6"/>
+          </linearGradient>
+        </defs>
+        <!-- Horizontal line -->
+        <line x1="167" y1="0" x2="833" y2="0" stroke="url(#grad1)" stroke-width="1.5"/>
+        <!-- Left branch to Lab -->
+        <line x1="167" y1="0" x2="167" y2="60" stroke="#ff3b6b" stroke-width="1.5" stroke-opacity="0.6"/>
+        <!-- Center branch to Empresa -->
+        <line x1="500" y1="0" x2="500" y2="60" stroke="#00ffb4" stroke-width="1.5" stroke-opacity="0.8"/>
+        <!-- Right branch to DMZ -->
+        <line x1="833" y1="0" x2="833" y2="60" stroke="#00b4ff" stroke-width="1.5" stroke-opacity="0.6"/>
+        <!-- Labels -->
+        <text x="167" y="35" text-anchor="middle" fill="#ff3b6b" font-family="monospace" font-size="9" opacity="0.7">enp0s10</text>
+        <text x="500" y="35" text-anchor="middle" fill="#00ffb4" font-family="monospace" font-size="9" opacity="0.7">enp0s8</text>
+        <text x="833" y="35" text-anchor="middle" fill="#00b4ff" font-family="monospace" font-size="9" opacity="0.7">enp0s9</text>
+      </svg>
+    </div>
+
+    <!-- Networks Row -->
+    <div class="networks-row">
+
+      <!-- Lab Zone -->
+      <div class="zone zone-lab"
+        data-title="Red Laboratori"
+        data-info="Subnet: 10.30.30.0/24<br>COMPLETAMENT AÏLLADA<br>Accés: Només des de xarxa empresa<br>Contingut: DVWA, WebGoat, JuiceShop, Mutillidae">
+        <div class="zone-header">
+          <div class="zone-icon">⚗️</div>
+          <div class="zone-title">
+            <div class="zone-name">RED LABORATORI</div>
+            <div class="zone-subnet">10.30.30.0/24</div>
+          </div>
+          <span class="zone-status status-isolated">AÏLLADA</span>
+        </div>
+        <div class="vm-card">
+          <div class="vm-header">
+            <div class="vm-dot dot-red"></div>
+            <div class="vm-name">millornet-lab</div>
+            <div class="vm-ip">10.30.30.10</div>
+          </div>
+          <div class="vm-services">
+            <span class="service-tag tag-red">DVWA :8080</span>
+            <span class="service-tag tag-red">WebGoat :8081</span>
+            <span class="service-tag tag-red">JuiceShop :8082</span>
+            <span class="service-tag tag-red">Mutillidae :8083</span>
+          </div>
+        </div>
+        <div style="margin-top:8px; padding:8px; background:rgba(255,59,107,0.08); border-radius:8px; border:1px solid rgba(255,59,107,0.15);">
+          <div style="font-size:10px; color:#ff3b6b; font-family:monospace; margin-bottom:4px;">⛔ POLÍTIQUES</div>
+          <div style="font-size:10px; color:var(--dim);">→ Internet: BLOCAT</div>
+          <div style="font-size:10px; color:var(--dim);">→ Empresa: BLOCAT</div>
+          <div style="font-size:10px; color:var(--dim);">→ DMZ: BLOCAT</div>
+          <div style="font-size:10px; color:var(--dim);">→ DNS: BLOCAT</div>
+        </div>
+      </div>
+
+      <!-- Empresa Zone -->
+      <div class="zone zone-empresa"
+        data-title="Red Empresa"
+        data-info="Subnet: 10.10.10.0/24<br>Xarxa corporativa principal<br>Accés total a internet i DMZ<br>Serveis: Docker, Portainer, Grafana, Wazuh, DefectDojo">
+        <div class="zone-header">
+          <div class="zone-icon">🏢</div>
+          <div class="zone-title">
+            <div class="zone-name">RED EMPRESA</div>
+            <div class="zone-subnet">10.10.10.0/24</div>
+          </div>
+          <span class="zone-status status-active">ACTIVA</span>
+        </div>
+        <div class="vm-card">
+          <div class="vm-header">
+            <div class="vm-dot dot-green"></div>
+            <div class="vm-name">millornet-server</div>
+            <div class="vm-ip">10.10.10.10</div>
+          </div>
+          <div class="vm-services">
+            <span class="service-tag tag-green">Traefik</span>
+            <span class="service-tag tag-green">Portainer</span>
+            <span class="service-tag tag-green">Grafana</span>
+            <span class="service-tag tag-green">Prometheus</span>
+            <span class="service-tag tag-blue">Wazuh</span>
+            <span class="service-tag tag-blue">DefectDojo</span>
+            <span class="service-tag tag-orange">Duplicati</span>
+          </div>
+        </div>
+        <div style="margin-top:8px; padding:8px; background:rgba(0,255,180,0.05); border-radius:8px; border:1px solid rgba(0,255,180,0.1);">
+          <div style="font-size:10px; color:var(--accent); font-family:monospace; margin-bottom:4px;">✅ POLÍTIQUES</div>
+          <div style="font-size:10px; color:var(--dim);">→ Internet: PERMÈS</div>
+          <div style="font-size:10px; color:var(--dim);">→ DMZ: PERMÈS</div>
+          <div style="font-size:10px; color:var(--dim);">→ Lab: PERMÈS (atacs)</div>
+        </div>
+      </div>
+
+      <!-- DMZ Zone -->
+      <div class="zone zone-dmz"
+        data-title="Zona DMZ"
+        data-info="Subnet: 10.20.20.0/24<br>Serveis exposats a internet<br>Aïllada de la xarxa empresa<br>Serveis: Nginx, Mailserver, FTP">
+        <div class="zone-header">
+          <div class="zone-icon">🌐</div>
+          <div class="zone-title">
+            <div class="zone-name">ZONA DMZ</div>
+            <div class="zone-subnet">10.20.20.0/24</div>
+          </div>
+          <span class="zone-status status-exposed">EXPOSADA</span>
+        </div>
+        <div class="vm-card">
+          <div class="vm-header">
+            <div class="vm-dot dot-blue"></div>
+            <div class="vm-name">millornet-dmz</div>
+            <div class="vm-ip">10.20.20.10</div>
+          </div>
+          <div class="vm-services">
+            <span class="service-tag tag-blue">Nginx :80/443</span>
+            <span class="service-tag tag-blue">Mailserver :25</span>
+            <span class="service-tag tag-blue">FTP :21</span>
+          </div>
+        </div>
+        <div style="margin-top:8px; padding:8px; background:rgba(0,180,255,0.05); border-radius:8px; border:1px solid rgba(0,180,255,0.1);">
+          <div style="font-size:10px; color:var(--dmz); font-family:monospace; margin-bottom:4px;">⚠️ POLÍTIQUES</div>
+          <div style="font-size:10px; color:var(--dim);">→ Internet: PERMÈS</div>
+          <div style="font-size:10px; color:var(--dim);">→ Empresa: BLOCAT</div>
+          <div style="font-size:10px; color:var(--dim);">→ Lab: BLOCAT</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VPN Section -->
+  <div class="vpn-section">
+    <div class="vpn-header">
+      <div class="vpn-icon">🔐</div>
+      <div>
+        <div class="vpn-title">VPN WireGuard</div>
+        <div class="vpn-subnet">10.99.99.0/24 · Port UDP 51820 · ChaCha20</div>
+      </div>
+    </div>
+    <div class="vpn-peers">
+      <div class="peer-card">
+        <div class="peer-icon">💻</div>
+        <div>
+          <div class="peer-name">Iker — PC Principal</div>
+          <div class="peer-ip">10.99.99.2/32</div>
+        </div>
+      </div>
+      <div class="peer-card">
+        <div class="peer-icon">🏢</div>
+        <div>
+          <div class="peer-name">Indústries Stark</div>
+          <div class="peer-ip">10.99.99.3/32</div>
+        </div>
+      </div>
+      <div class="peer-card" style="opacity:0.5;">
+        <div class="peer-icon">➕</div>
+        <div>
+          <div class="peer-name">Nou peer...</div>
+          <div class="peer-ip">10.99.99.x/32</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="section-title">// Serveis Web Interns</div>
+  <div class="services-grid" style="margin-bottom:30px;">
+    <div class="service-card">
+      <div class="s-icon">🔀</div>
+      <div class="s-name">Traefik</div>
+      <div class="s-url">traefik.millornet.local</div>
+      <span class="s-badge tag-green">HTTPS · BasicAuth</span>
+    </div>
+    <div class="service-card">
+      <div class="s-icon">🐳</div>
+      <div class="s-name">Portainer</div>
+      <div class="s-url">portainer.millornet.local</div>
+      <span class="s-badge tag-green">HTTPS · 2FA TOTP</span>
+    </div>
+    <div class="service-card">
+      <div class="s-icon">📊</div>
+      <div class="s-name">Grafana</div>
+      <div class="s-url">grafana.millornet.local</div>
+      <span class="s-badge tag-green">HTTPS · 2FA TOTP</span>
+    </div>
+    <div class="service-card">
+      <div class="s-icon">🔥</div>
+      <div class="s-name">Prometheus</div>
+      <div class="s-url">prometheus.millornet.local</div>
+      <span class="s-badge tag-green">HTTPS · BasicAuth</span>
+    </div>
+    <div class="service-card">
+      <div class="s-icon">💾</div>
+      <div class="s-name">Duplicati</div>
+      <div class="s-url">duplicati.millornet.local</div>
+      <span class="s-badge tag-orange">HTTPS · AES-256</span>
+    </div>
+    <div class="service-card">
+      <div class="s-icon">🛡️</div>
+      <div class="s-name">Wazuh SIEM</div>
+      <div class="s-url">10.10.10.10:4443</div>
+      <span class="s-badge tag-blue">3 Agents Actius</span>
+    </div>
+    <div class="service-card">
+      <div class="s-icon">🐛</div>
+      <div class="s-name">DefectDojo</div>
+      <div class="s-url">defectdojo.millornet.local</div>
+      <span class="s-badge tag-blue">HTTPS · Vuln Mgmt</span>
+    </div>
+    <div class="service-card">
+      <div class="s-icon">📈</div>
+      <div class="s-name">ntopng</div>
+      <div class="s-url">10.10.10.1:3000</div>
+      <span class="s-badge tag-orange">Traffic Analysis</span>
+    </div>
+  </div>
+
+  <!-- Security -->
+  <div class="section-title">// Seguretat Implementada</div>
+  <div class="security-row">
+    <div class="sec-badge">
+      <div class="sec-icon">🔒</div>
+      <div class="sec-label">SSL/TLS</div>
+      <div class="sec-value">CA Pròpia · Wildcard</div>
+    </div>
+    <div class="sec-badge">
+      <div class="sec-icon">📱</div>
+      <div class="sec-label">2FA TOTP</div>
+      <div class="sec-value">Portainer · Grafana</div>
+    </div>
+    <div class="sec-badge">
+      <div class="sec-icon">🚫</div>
+      <div class="sec-label">Fail2ban</div>
+      <div class="sec-value">3 intentos · 2h ban</div>
+    </div>
+    <div class="sec-badge">
+      <div class="sec-icon">🔍</div>
+      <div class="sec-label">Wazuh SIEM</div>
+      <div class="sec-value">3 agents actius</div>
+    </div>
+    <div class="sec-badge">
+      <div class="sec-icon">📋</div>
+      <div class="sec-label">Lynis Score</div>
+      <div class="sec-value">Router 71 · Server 69</div>
+    </div>
+    <div class="sec-badge">
+      <div class="sec-icon">💾</div>
+      <div class="sec-label">Backups</div>
+      <div class="sec-value">Diari · AES-256</div>
+    </div>
+    <div class="sec-badge">
+      <div class="sec-icon">🔐</div>
+      <div class="sec-label">BasicAuth</div>
+      <div class="sec-value">Traefik · Prometheus</div>
+    </div>
+    <div class="sec-badge">
+      <div class="sec-icon">🛡️</div>
+      <div class="sec-label">DefectDojo</div>
+      <div class="sec-value">4 findings gestionats</div>
+    </div>
+  </div>
+
+  <footer>
+    MILLORNET CYBERSECURITY · ASIX 2025/2026 · IKER VP & ENRIC TG · 
+    <span style="color:var(--accent)">4 VMs · 3 XARXES · 15+ SERVEIS</span>
+  </footer>
+
+</div>
+
+<script>
+  // Tooltip functionality
+  const tooltip = document.getElementById('tooltip');
+  const ttTitle = document.getElementById('tt-title');
+  const ttContent = document.getElementById('tt-content');
+
+  document.querySelectorAll('[data-title]').forEach(el => {
+    el.addEventListener('mouseenter', (e) => {
+      ttTitle.textContent = el.dataset.title;
+      ttContent.innerHTML = el.dataset.info.split('<br>').map(line => 
+        `<div class="tooltip-item">${line}</div>`
+      ).join('');
+      tooltip.classList.add('show');
+    });
+
+    el.addEventListener('mousemove', (e) => {
+      let x = e.clientX + 15;
+      let y = e.clientY + 15;
+      if (x + 280 > window.innerWidth) x = e.clientX - 280;
+      if (y + 150 > window.innerHeight) y = e.clientY - 150;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    });
+
+    el.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('show');
+    });
+  });
+
+  // Animate dots with random delays
+  document.querySelectorAll('.vm-dot').forEach((dot, i) => {
+    dot.style.animationDelay = (i * 0.3) + 's';
+  });
+</script>
+</body>
+</html>
